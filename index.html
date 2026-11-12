@@ -4,202 +4,282 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mein kleiner Alltagszauber</title>
+<title>Mein kleiner Alltagszauber – Version 4</title>
 <style>
 :root {
-  --lila:#eadff5;
-  --tuerkis:#d9f3ef;
-  --schrift:#625575;
-  --weiss:#fff;
+  --ink:#655778;
+  --lavender:#e9ddf4;
+  --mint:#dff4ef;
+  --white:#ffffff;
 }
-* { box-sizing:border-box; }
+* {box-sizing:border-box}
 body {
   margin:0;
-  font-family:Arial,sans-serif;
-  color:var(--schrift);
-  background:linear-gradient(145deg,#f5eefa,#e5f8f5);
   min-height:100vh;
+  font-family:Arial,sans-serif;
+  color:var(--ink);
+  background:linear-gradient(150deg,#f7f0fa 0%,#e8f8f5 52%,#f4ecfa 100%);
+}
+body::before {
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.35;
+  background:
+    radial-gradient(ellipse at 95% 18%,#d6c5e8 0%,transparent 23%),
+    radial-gradient(ellipse at 2% 76%,#c9eae0 0%,transparent 26%);
 }
 header {
+  position:relative;
   text-align:center;
-  padding:22px 16px 16px;
+  padding:24px 16px 20px;
 }
 h1 {
   font-family:Georgia,serif;
-  font-weight:normal;
+  font-size:29px;
   font-style:italic;
-  font-size:28px;
-  margin:6px 0;
+  font-weight:normal;
+  margin:0 0 8px;
 }
-h2 { font-size:19px; font-weight:normal; }
-h3 { font-size:17px; }
-.subtitle { font-size:13px; opacity:.75; }
-.calla { width:95px; height:105px; }
+h2 {font-size:19px;font-weight:normal}
+.subtitle {font-size:13px;opacity:.75}
+.calla {
+  display:block;
+  width:175px;
+  height:195px;
+  margin:0 auto -5px;
+  filter:drop-shadow(0 5px 10px #9a83b033);
+}
 .menu-button {
   position:absolute;
-  top:16px;
   right:16px;
+  top:17px;
   border:0;
-  background:white;
-  color:var(--schrift);
-  padding:11px 14px;
   border-radius:20px;
-  box-shadow:0 2px 12px #b6a6c433;
-  cursor:pointer;
+  background:#ffffffd9;
+  padding:11px 14px;
+  color:var(--ink);
+  box-shadow:0 3px 15px #8c799025;
 }
 main {
+  position:relative;
   max-width:720px;
   margin:auto;
-  padding:0 16px 35px;
+  padding:0 16px 32px;
 }
-.panel {
-  background:#ffffffc9;
-  border-radius:22px;
-  padding:18px;
-  margin:15px 0;
-  box-shadow:0 4px 18px #a59ab51c;
+.panel,details {
+  background:#ffffffa8;
+  backdrop-filter:blur(7px);
+  border:1px solid #ffffffbb;
+  border-radius:26px;
+  padding:19px;
+  margin:13px 0;
+  box-shadow:0 6px 24px #8c7c9d12;
+}
+details:nth-of-type(even) {
+  background:#f0e9f6b5;
+}
+details:nth-of-type(odd) {
+  background:#eaf7f4b5;
+}
+summary {
+  cursor:pointer;
+  font-weight:600;
+  padding:3px 0;
+}
+button {font:inherit;cursor:pointer}
+.arrow,.small-button {
+  border:0;
+  background:var(--lavender);
+  color:var(--ink);
+  border-radius:15px;
+  padding:10px 14px;
 }
 .date-nav {
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:8px;
-}
-button {
-  cursor:pointer;
-  font:inherit;
-}
-.arrow, .small-button {
-  border:0;
-  border-radius:13px;
-  background:var(--lila);
-  padding:10px 13px;
-  color:var(--schrift);
+  gap:10px;
 }
 .date-title {
+  font-family:Georgia,serif;
+  font-size:18px;
   text-align:center;
-  font-size:17px;
 }
-input,textarea {
-  width:100%;
-  border:1px solid #ded6e5;
-  border-radius:12px;
-  padding:11px;
-  font:inherit;
-  color:var(--schrift);
-  background:white;
-  margin:6px 0;
-}
-textarea { min-height:100px; resize:vertical; }
-label { display:block; margin-top:12px; }
-details {
-  background:#ffffffbd;
-  border-radius:18px;
-  margin:12px 0;
-  padding:16px;
-}
-summary {
-  cursor:pointer;
-  font-weight:bold;
+.quote {
+  text-align:center;
+  font-family:Georgia,serif;
+  font-style:italic;
+  line-height:1.5;
+  margin:20px 0;
 }
 .emoji-row {
   display:flex;
   flex-wrap:wrap;
-  gap:9px;
+  gap:8px;
   margin-top:12px;
 }
 .emoji {
+  background:#f3ecf8;
   border:2px solid transparent;
-  border-radius:14px;
-  background:#f5effa;
-  padding:9px;
+  border-radius:15px;
+  padding:10px;
   font-size:23px;
 }
 .emoji.active {
-  border-color:#9a7db8;
-  background:#e8d9f5;
+  background:#e1d0f1;
+  border-color:#987bb5;
 }
+input,textarea {
+  width:100%;
+  font:inherit;
+  color:var(--ink);
+  padding:12px;
+  margin-top:8px;
+  border:1px solid #e0d8e7;
+  border-radius:15px;
+  background:#ffffffd9;
+}
+textarea {
+  min-height:110px;
+  resize:vertical;
+}
+label {display:block;margin-top:14px}
 .temp-row {
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:12px;
 }
+.note {
+  font-size:13px;
+  line-height:1.5;
+  opacity:.8;
+}
+.hidden {display:none!important}
 .menu-overlay {
   display:none;
   position:fixed;
   inset:0;
-  background:#4d405680;
-  z-index:10;
+  z-index:20;
+  background:#51435a80;
 }
-.menu-overlay.open { display:block; }
+.menu-overlay.open {display:block}
 .menu {
   width:min(340px,88vw);
   height:100%;
   overflow:auto;
-  background:linear-gradient(#f3eafa,#e3f7f4);
-  padding:24px 18px;
-  box-shadow:4px 0 20px #3333;
+  padding:25px 18px;
+  background:linear-gradient(#f5ecfa,#e4f7f2);
+  box-shadow:5px 0 24px #40344735;
 }
 .menu-head {
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
 }
 .menu-item {
   display:block;
   width:100%;
   text-align:left;
-  padding:16px;
-  margin:10px 0;
   border:0;
-  border-radius:17px;
-  background:#ffffffd9;
-  color:var(--schrift);
+  border-radius:19px;
+  margin:10px 0;
+  padding:17px;
+  background:#ffffffd6;
+  color:var(--ink);
 }
 .menu-item span {
   display:block;
   font-size:12px;
-  margin-top:4px;
   opacity:.7;
-}
-.hidden { display:none; }
-.note {
-  font-size:13px;
-  opacity:.8;
-  line-height:1.5;
+  margin-top:5px;
 }
 footer {
+  position:relative;
   text-align:center;
-  padding:18px;
+  padding:20px;
+  font-family:Georgia,serif;
   font-style:italic;
   font-size:13px;
-  opacity:.7;
+  opacity:.75;
+}
+.floral-bg {
+  position:fixed;
+  pointer-events:none;
+  z-index:0;
+  opacity:.13;
+  width:180px;
+  height:250px;
+}
+.floral-left {
+  left:-75px;
+  top:45%;
+  transform:rotate(-25deg);
+}
+.floral-right {
+  right:-80px;
+  top:10%;
+  transform:rotate(25deg);
 }
 </style>
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="watercolor" x="-25%" y="-25%" width="150%" height="150%">
+      <feTurbulence type="fractalNoise"
+        baseFrequency=".035" numOctaves="3"
+        seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic"
+        in2="noise" scale="3"/>
+    </filter>
+    <linearGradient id="petal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".5" stop-color="#f9f8ff"/>
+      <stop offset="1" stop-color="#d6c5e7"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b8dfc5"/>
+      <stop offset="1" stop-color="#619f7d"/>
+    </linearGradient>
+    <symbol id="callaArt" viewBox="0 0 150 210">
+      <path d="M68 205 Q65 134 89 62"
+        stroke="#7ca98b" stroke-width="5"
+        fill="none" stroke-linecap="round"/>
+      <path d="M69 171 Q30 166 22 125 Q58 130 69 171Z"
+        fill="url(#leaf)" opacity=".8"/>
+      <path d="M77 145 Q115 136 124 102 Q91 109 77 145Z"
+        fill="url(#leaf)" opacity=".7"/>
+      <path d="M88 93 Q33 91 37 38 Q44 12 86 9
+               Q128 18 117 65 Q108 90 88 93Z"
+        fill="url(#petal)" stroke="#d6c5df"
+        stroke-width="2" filter="url(#watercolor)"/>
+      <path d="M87 79 Q77 57 93 27"
+        stroke="#d7b05a" stroke-width="9"
+        fill="none" stroke-linecap="round"
+        opacity=".9"/>
+      <path d="M88 93 Q105 68 86 12"
+        fill="none" stroke="#e2d4ec"
+        stroke-width="2" opacity=".6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<svg class="floral-bg floral-left" viewBox="0 0 150 210">
+  <use href="#callaArt"/>
+</svg>
+<svg class="floral-bg floral-right" viewBox="0 0 150 210">
+  <use href="#callaArt"/>
+</svg>
+
 <header>
   <button class="menu-button" onclick="openMenu()">☰ Menü</button>
-
-  <svg class="calla" viewBox="0 0 100 115"
-       xmlns="http://www.w3.org/2000/svg">
-    <path d="M50 107 Q49 74 57 40"
-          fill="none" stroke="#6c9e7e"
-          stroke-width="4" stroke-linecap="round"/>
-    <path d="M57 53 Q25 43 30 16
-             Q55 4 76 25
-             Q81 47 57 53Z"
-          fill="#ffffff" stroke="#cbb7d9"
-          stroke-width="2"/>
-    <path d="M57 47 Q49 31 60 18"
-          fill="none" stroke="#e5bb57"
-          stroke-width="6" stroke-linecap="round"/>
-    <path d="M50 86 Q25 81 22 66
-             Q43 67 50 86"
-          fill="#90c5a3"/>
+  <svg class="calla" viewBox="0 0 150 210"
+       aria-label="Weiße Calla in Aquarelloptik">
+    <use href="#callaArt"/>
   </svg>
-
   <h1>Mein kleiner Alltagszauber</h1>
   <div class="subtitle">Mein Tag · Meine Gedanken · Mein Leben</div>
 </header>
@@ -209,8 +289,7 @@ footer {
   <nav class="menu" onclick="event.stopPropagation()">
     <div class="menu-head">
       <h2>🌸 Meine Bereiche</h2>
-      <button class="small-button"
-              onclick="closeMenu()">✕</button>
+      <button class="small-button" onclick="closeMenu()">✕</button>
     </div>
     <button class="menu-item" onclick="showPage('kalender')">
       📅 Mein Kalender
@@ -234,7 +313,7 @@ footer {
     </button>
     <button class="menu-item" onclick="showPage('notizen')">
       📝 Meine Notizen
-      <span>Platz für meine Gedanken</span>
+      <span>Gedanken und Ideen</span>
     </button>
   </nav>
 </div>
@@ -244,14 +323,12 @@ footer {
     <section class="panel">
       <div class="date-nav">
         <button class="arrow" onclick="changeDay(-1)">❮</button>
-        <div class="date-title" id="dateTitle"></div>
+        <div id="dateTitle" class="date-title"></div>
         <button class="arrow" onclick="changeDay(1)">❯</button>
       </div>
-      <p id="quote" style="text-align:center;font-style:italic"></p>
+      <p class="quote" id="quote"></p>
       <div style="text-align:center">
-        <button class="small-button" onclick="goToday()">
-          Heute
-        </button>
+        <button class="small-button" onclick="goToday()">Heute</button>
       </div>
     </section>
 
@@ -264,44 +341,47 @@ footer {
       <summary>🌤️ Mein Wetter</summary>
       <div class="emoji-row" id="weatherButtons"></div>
       <div class="temp-row">
-        <label>☀️ Tag
+        <label>☀️ Tagsüber
           <input type="number" id="tempDay"
                  placeholder="°C" oninput="saveDay()">
         </label>
-        <label>🌙 Nacht
+        <label>🌙 Nachts
           <input type="number" id="tempNight"
                  placeholder="°C" oninput="saveDay()">
         </label>
       </div>
       <p class="note">
-        Die Temperaturen können vorerst manuell eingetragen
-        werden. Automatische Wetterdaten folgen später.
+        Die automatische Wettervorhersage ergänzen wir später.
       </p>
     </details>
 
     <details>
       <summary>💌 Nicht vergessen</summary>
-      <textarea id="reminders" placeholder="Meine Termine und Erinnerungen ..."
-                oninput="saveDay()"></textarea>
+      <textarea id="reminders"
+        placeholder="Meine Termine und Erinnerungen ..."
+        oninput="saveDay()"></textarea>
     </details>
 
     <details>
       <summary>✅ Meine To-dos</summary>
-      <textarea id="tasks" placeholder="Was möchte ich erledigen?"
-                oninput="saveDay()"></textarea>
+      <textarea id="tasks"
+        placeholder="Was möchte ich erledigen?"
+        oninput="saveDay()"></textarea>
     </details>
 
     <details>
       <summary>🎂 Geburtstage</summary>
-      <textarea id="birthdays" placeholder="Wen möchte ich heute feiern?"
-                oninput="saveDay()"></textarea>
+      <textarea id="birthdays"
+        placeholder="Wen möchte ich heute feiern?"
+        oninput="saveDay()"></textarea>
     </details>
 
     <details>
       <summary>📖 Mein Tagebuch</summary>
-      <textarea id="diary" placeholder="Was hat meinen Tag besonders gemacht?"
-                style="min-height:170px"
-                oninput="saveDay()"></textarea>
+      <textarea id="diary"
+        placeholder="Was hat meinen Tag besonders gemacht?"
+        style="min-height:180px"
+        oninput="saveDay()"></textarea>
     </details>
   </div>
 
@@ -309,33 +389,28 @@ footer {
     <h2>💜 Meine Finanzen</h2>
     <p>Hier entstehen deine Haushaltsübersicht,
        deine Ausgaben und deine beiden Sparbücher.</p>
-    <p class="note">Dieser Bereich wird als Nächstes ausgebaut.</p>
+    <p class="note">Diesen Bereich bauen wir später aus.</p>
   </section>
 
   <section id="gewicht" class="panel hidden">
     <h2>⚖️ Mein Gewicht</h2>
     <p>Hier entstehen dein Gewichtstracker,
-       deine Ziele und ein grafischer Verlauf.</p>
+       deine Ziele und dein grafischer Verlauf.</p>
   </section>
 
   <section id="todos" class="panel hidden">
     <h2>✅ Meine To-dos</h2>
-    <p>Deine täglichen To-dos findest du bereits
-       im Tageskalender.</p>
-    <button class="small-button"
-            onclick="showPage('kalender')">
+    <p>Deine täglichen To-dos findest du im Tageskalender.</p>
+    <button class="small-button" onclick="showPage('kalender')">
       Zum Tageskalender
     </button>
   </section>
 
   <section id="wetter" class="panel hidden">
     <h2>🌤️ Mein Wetter</h2>
-    <p>Deine tägliche Wetterübersicht findest du
-       im Tageskalender.</p>
-    <p>Eine automatische Vorhersage für Tag und Nacht
-       ergänzen wir später.</p>
-    <button class="small-button"
-            onclick="showPage('kalender')">
+    <p>Deine Wetterübersicht findest du im Tageskalender.</p>
+    <p>Die automatische Vorhersage ergänzen wir später.</p>
+    <button class="small-button" onclick="showPage('kalender')">
       Zum Tageskalender
     </button>
   </section>
@@ -343,7 +418,7 @@ footer {
   <section id="notizen" class="panel hidden">
     <h2>📝 Meine Notizen</h2>
     <textarea id="generalNotes"
-      placeholder="Hier ist Platz für alles, was ich festhalten möchte ..."
+      placeholder="Hier ist Platz für meine Gedanken ..."
       style="min-height:220px"
       oninput="saveNotes()"></textarea>
   </section>
@@ -352,16 +427,14 @@ footer {
 <footer>🌸 Ein bisschen Zeit nur für mich 💜</footer>
 
 <script>
-let currentDate = new Date();
+let currentDate=new Date();
 currentDate.setHours(12,0,0,0);
+let selectedMood="";
+let selectedWeather="";
 
-let selectedMood = "";
-let selectedWeather = "";
-
-const moods = ["😍","😊","🙂","😐","😔","😢"];
-const weathers = ["☀️","🌤️","⛅","☁️","🌧️","❄️"];
-
-const quotes = [
+const moods=["😍","😊","🙂","😐","😔","😢"];
+const weathers=["☀️","🌤️","⛅","☁️","🌧️","❄️"];
+const quotes=[
   "Jeder Tag hält kleine Wunder bereit.",
   "Auch kleine Schritte bringen dich weiter.",
   "Heute darfst du einfach du selbst sein.",
@@ -371,75 +444,62 @@ const quotes = [
   "Manchmal ist weniger einfach mehr."
 ];
 
-function dateKey() {
-  const y = currentDate.getFullYear();
-  const m = String(currentDate.getMonth()+1).padStart(2,"0");
-  const d = String(currentDate.getDate()).padStart(2,"0");
+function dateKey(){
+  const y=currentDate.getFullYear();
+  const m=String(currentDate.getMonth()+1).padStart(2,"0");
+  const d=String(currentDate.getDate()).padStart(2,"0");
   return y+"-"+m+"-"+d;
 }
-
-function storageKey() {
+function storageKey(){
   return "alltagszauber-v3-"+dateKey();
 }
-
-function openMenu() {
+function openMenu(){
   document.getElementById("menuOverlay").classList.add("open");
 }
-
-function closeMenu() {
+function closeMenu(){
   document.getElementById("menuOverlay").classList.remove("open");
 }
-
-function showPage(page) {
+function showPage(page){
   ["kalender","finanzen","gewicht","todos","wetter","notizen"]
-    .forEach(id => {
+    .forEach(id=>{
       document.getElementById(id).classList.toggle("hidden",id!==page);
     });
   closeMenu();
   window.scrollTo(0,0);
 }
-
-function changeDay(days) {
+function changeDay(days){
   currentDate.setDate(currentDate.getDate()+days);
   loadDay();
 }
-
-function goToday() {
-  currentDate = new Date();
+function goToday(){
+  currentDate=new Date();
   currentDate.setHours(12,0,0,0);
   loadDay();
 }
-
-function createEmojiButtons(containerId,values,type) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = "";
-
-  values.forEach(emoji => {
-    const button = document.createElement("button");
-    button.className = "emoji";
-    button.textContent = emoji;
-
-    const active = type==="mood" ? selectedMood : selectedWeather;
-    if (active===emoji) button.classList.add("active");
-
-    button.onclick = () => {
-      if (type==="mood") selectedMood=emoji;
+function createEmojiButtons(containerId,values,type){
+  const container=document.getElementById(containerId);
+  container.innerHTML="";
+  values.forEach(emoji=>{
+    const button=document.createElement("button");
+    button.className="emoji";
+    button.textContent=emoji;
+    const active=type==="mood"?selectedMood:selectedWeather;
+    if(active===emoji)button.classList.add("active");
+    button.onclick=()=>{
+      if(type==="mood")selectedMood=emoji;
       else selectedWeather=emoji;
       saveDay();
       renderEmojis();
     };
-
     container.appendChild(button);
   });
 }
-
-function renderEmojis() {
+function renderEmojis(){
   createEmojiButtons("moodButtons",moods,"mood");
   createEmojiButtons("weatherButtons",weathers,"weather");
 }
-
-function saveDay() {
-  const data = {
+function saveDay(){
+  const data={
     mood:selectedMood,
     weather:selectedWeather,
     tempDay:document.getElementById("tempDay").value,
@@ -449,60 +509,52 @@ function saveDay() {
     birthdays:document.getElementById("birthdays").value,
     diary:document.getElementById("diary").value
   };
-  try {
+  try{
     localStorage.setItem(storageKey(),JSON.stringify(data));
-  } catch(error) {
+  }catch(error){
     console.warn("Speichern nicht möglich",error);
   }
 }
-
-function loadDay() {
-  const formatted = currentDate.toLocaleDateString("de-DE",{
-    weekday:"long",day:"numeric",month:"long",year:"numeric"
-  });
-  document.getElementById("dateTitle").textContent=formatted;
-
-  const dayIndex=Math.floor(
-    new Date(currentDate.getFullYear(),currentDate.getMonth(),
-             currentDate.getDate()).getTime()/86400000
-  );
-  document.getElementById("quote").textContent =
-    quotes[((dayIndex%quotes.length)+quotes.length)%quotes.length];
-
+function loadDay(){
+  document.getElementById("dateTitle").textContent=
+    currentDate.toLocaleDateString("de-DE",{
+      weekday:"long",day:"numeric",month:"long",year:"numeric"
+    });
+  const index=Math.floor(new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    currentDate.getDate()
+  ).getTime()/86400000);
+  document.getElementById("quote").textContent=
+    quotes[((index%quotes.length)+quotes.length)%quotes.length];
   let data={};
-  try {
+  try{
     data=JSON.parse(localStorage.getItem(storageKey())||"{}")||{};
-  } catch(error) {
+  }catch(error){
     data={};
   }
-
   selectedMood=data.mood||"";
   selectedWeather=data.weather||"";
-
   ["tempDay","tempNight","reminders","tasks","birthdays","diary"]
-    .forEach(id => {
+    .forEach(id=>{
       document.getElementById(id).value=data[id]||"";
     });
-
   renderEmojis();
 }
-
-function saveNotes() {
-  try {
+function saveNotes(){
+  try{
     localStorage.setItem(
       "alltagszauber-v3-notizen",
       document.getElementById("generalNotes").value
     );
-  } catch(error) {
+  }catch(error){
     console.warn("Notizen konnten nicht gespeichert werden",error);
   }
 }
-
-try {
-  document.getElementById("generalNotes").value =
+try{
+  document.getElementById("generalNotes").value=
     localStorage.getItem("alltagszauber-v3-notizen")||"";
-} catch(error) {}
-
+}catch(error){}
 loadDay();
 showPage("kalender");
 </script>
