@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meine Alltags-App 🌸</title>
+<style>
+:root {
+  --tuerkis:#d7f3ef;
+  --lila:#eee1f7;
+  --dunkel:#62536e;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  color:var(--dunkel);
+  background:linear-gradient(135deg,#e5f8f5,#f5eafa);
+}
+main {
+  max-width:760px;
+  margin:auto;
+  padding:22px;
+}
+header {text-align:center;padding:20px 0}
+h1 {font-family:Georgia,serif;font-size:30px}
+h2 {font-size:18px;margin:0 0 12px}
+.blume {font-size:48px}
+.karte {
+  background:#ffffffbb;
+  border-radius:22px;
+  padding:20px;
+  margin:15px 0;
+  box-shadow:0 4px 15px #77668812;
+}
+.zeile {
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+button {
+  border:0;
+  border-radius:12px;
+  padding:10px 14px;
+  background:var(--lila);
+  color:var(--dunkel);
+  cursor:pointer;
+}
+input,textarea,select {
+  font:inherit;
+  color:inherit;
+  padding:10px;
+  border:1px solid #dfd5e5;
+  border-radius:12px;
+  background:#fff;
+  max-width:100%;
+}
+textarea {width:100%;min-height:120px}
+input[type=text] {flex:1;min-width:120px}
+.auswahl button {font-size:23px}
+.aktiv {background:#bcebe4!important}
+.eintrag {padding:8px 0}
+.eintrag button {float:right;padding:4px 9px}
+details summary {cursor:pointer;font-weight:bold}
+small {color:#81768a}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="blume">🌸</div>
+  <h1>Mein kleiner Alltagszauber</h1>
+  <p>Ein bisschen Zeit nur für mich 💜</p>
+</header>
+
+<section class="karte">
+  <div class="zeile">
+    <button onclick="wechsel(-1)">❮</button>
+    <input type="date" id="datum">
+    <button onclick="wechsel(1)">❯</button>
+    <button onclick="heute()">Heute</button>
+  </div>
+  <h2 id="tag" style="margin-top:16px"></h2>
+  <p id="spruch"></p>
+</section>
+
+<section class="karte">
+  <h2>💜 Wie fühle ich mich heute?</h2>
+  <div class="zeile auswahl" id="stimmung">
+    <button onclick="wahl('stimmung','😍')">😍</button>
+    <button onclick="wahl('stimmung','😊')">😊</button>
+    <button onclick="wahl('stimmung','😐')">😐</button>
+    <button onclick="wahl('stimmung','😔')">😔</button>
+    <button onclick="wahl('stimmung','😴')">😴</button>
+  </div>
+</section>
+
+<section class="karte">
+  <h2>🌤️ Mein Wetter</h2>
+  <div class="zeile auswahl" id="wetter">
+    <button onclick="wahl('wetter','☀️')">☀️</button>
+    <button onclick="wahl('wetter','⛅')">⛅</button>
+    <button onclick="wahl('wetter','☁️')">☁️</button>
+    <button onclick="wahl('wetter','🌧️')">🌧️</button>
+    <button onclick="wahl('wetter','❄️')">❄️</button>
+  </div>
+  <p><small>Temperaturen vorerst manuell eintragen</small></p>
+  <div class="zeile">
+    <label>Tag °C <input id="tempTag" type="number" style="width:75px"></label>
+    <label>Nacht °C <input id="tempNacht" type="number" style="width:75px"></label>
+  </div>
+</section>
+
+<section class="karte">
+  <h2>🌷 Nicht vergessen</h2>
+  <div class="zeile">
+    <input id="termin" type="text" placeholder="Termin oder Erinnerung">
+    <button onclick="hinzu('termin')">＋</button>
+  </div>
+  <div id="termine"></div>
+</section>
+
+<section class="karte">
+  <h2>📝 Meine To-dos</h2>
+  <div class="zeile">
+    <input id="todo" type="text" placeholder="Was möchte ich erledigen?">
+    <button onclick="hinzu('todo')">＋</button>
+  </div>
+  <div id="todos"></div>
+</section>
+
+<section class="karte">
+  <h2>🎂 Geburtstage</h2>
+  <div class="zeile">
+    <input id="geburtstag" type="text" placeholder="Wer hat Geburtstag?">
+    <button onclick="hinzu('geburtstag')">＋</button>
+  </div>
+  <div id="geburtstage"></div>
+</section>
+
+<section class="karte">
+  <details>
+    <summary>📖 Mein Tagebuch aufklappen</summary>
+    <p>Was hat meinen Tag besonders gemacht?</p>
+    <textarea id="tagebuch" placeholder="Meine Gedanken..."></textarea>
+  </details>
+</section>
+<p style="text-align:center">🌸 Jeder Tag ist ein neuer Anfang. 💜</p>
+</main>
+
+<script>
+const datum=document.getElementById('datum');
+const felder=['tempTag','tempNacht','tagebuch'];
+const listen={
+  termin:'termine',
+  todo:'todos',
+  geburtstag:'geburtstage'
+};
+const sprueche=[
+ 'Auch kleine Schritte bringen dich weiter.',
+ 'Heute darfst du einfach du selbst sein.',
+ 'Die kleinen Dinge machen das Leben schön.',
+ 'Ein neuer Tag, eine neue Möglichkeit.',
+ 'Schenk dir heute ein Lächeln.'
+];
+let daten={};
+
+function schluessel(){
+ return 'alltag-'+datum.value;
+}
+function speichern(){
+ localStorage.setItem(schluessel(),JSON.stringify(daten));
+}
+function laden(){
+ try {
+  daten=JSON.parse(localStorage.getItem(schluessel()))||{};
+ } catch(e){daten={};}
+ felder.forEach(id=>{
+  document.getElementById(id).value=daten[id]||'';
+ });
+ document.querySelectorAll('.auswahl button').forEach(b=>{
+  const art=b.parentElement.id;
+  b.classList.toggle('aktiv',b.textContent===daten[art]);
+ });
+ Object.keys(listen).forEach(anzeigen);
+ const d=new Date(datum.value+'T12:00:00');
+ document.getElementById('tag').textContent=
+  d.toLocaleDateString('de-DE',{
+   weekday:'long',day:'numeric',month:'long',year:'numeric'
+  });
+ const nummer=Math.floor(d.getTime()/86400000);
+ document.getElementById('spruch').textContent=
+  '✨ '+sprueche[Math.abs(nummer)%sprueche.length];
+}
+function wahl(art,wert){
+ daten[art]=wert;
+ speichern();
+ laden();
+}
+function hinzu(art){
+ const feld=document.getElementById(art);
+ const wert=feld.value.trim();
+ if(!wert)return;
+ if(!Array.isArray(daten[art]))daten[art]=[];
+ daten[art].push(wert);
+ feld.value='';
+ speichern();
+ anzeigen(art);
+}
+function entfernen(art,index){
+ daten[art].splice(index,1);
+ speichern();
+ anzeigen(art);
+}
+function anzeigen(art){
+ const ziel=document.getElementById(listen[art]);
+ ziel.replaceChildren();
+ (daten[art]||[]).forEach((wert,index)=>{
+  const zeile=document.createElement('div');
+  zeile.className='eintrag';
+  const text=document.createElement('span');
+  text.textContent='• '+wert;
+  const knopf=document.createElement('button');
+  knopf.textContent='✕';
+  knopf.onclick=()=>entfernen(art,index);
+  zeile.append(text,knopf);
+  ziel.append(zeile);
+ });
+}
+function wechselnDatum(d){
+ datum.value=d.toLocaleDateString('sv-SE');
+ laden();
+}
+function wechsel(tage){
+ const d=new Date(datum.value+'T12:00:00');
+ d.setDate(d.getDate()+tage);
+ wechselnDatum(d);
+}
+function heute(){wechselnDatum(new Date())}
+datum.addEventListener('change',laden);
+felder.forEach(id=>{
+ document.getElementById(id).addEventListener('input',e=>{
+  daten[id]=e.target.value;
+  speichern();
+ });
+});
+heute();
+</script>
+</body>
+</html>
