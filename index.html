@@ -3,287 +3,508 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mein kleiner Alltagszauber</title>
 <style>
-:root{
- --lila:#e9ddf5;
- --tuerkis:#d9f3ef;
- --schrift:#625575;
+:root {
+  --lila:#eadff5;
+  --tuerkis:#d9f3ef;
+  --schrift:#625575;
+  --weiss:#fff;
 }
-*{box-sizing:border-box}
-body{
- margin:0;
- font-family:Arial,sans-serif;
- color:var(--schrift);
- background:linear-gradient(145deg,#e3f8f4,#f5eafa);
- min-height:100vh;
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  color:var(--schrift);
+  background:linear-gradient(145deg,#f5eefa,#e5f8f5);
+  min-height:100vh;
 }
-main{max-width:760px;margin:auto;padding:18px}
-header{text-align:center;padding:18px 0}
-h1{font:italic 30px Georgia,serif;margin:10px 0}
-h2{font-size:17px;margin:0 0 15px}
-p{line-height:1.5}
-.calla{width:135px;height:150px}
-.karte{
- background:#ffffffd9;
- border-radius:24px;
- padding:21px;
- margin:14px 0;
- box-shadow:0 5px 22px #77668812;
+header {
+  text-align:center;
+  padding:22px 16px 16px;
 }
-.zeile{
- display:flex;gap:10px;align-items:center;
- flex-wrap:wrap;
+h1 {
+  font-family:Georgia,serif;
+  font-weight:normal;
+  font-style:italic;
+  font-size:28px;
+  margin:6px 0;
 }
-button{
- border:0;border-radius:14px;
- padding:10px 14px;
- background:var(--lila);
- color:var(--schrift);
- cursor:pointer;
+h2 { font-size:19px; font-weight:normal; }
+h3 { font-size:17px; }
+.subtitle { font-size:13px; opacity:.75; }
+.calla { width:95px; height:105px; }
+.menu-button {
+  position:absolute;
+  top:16px;
+  right:16px;
+  border:0;
+  background:white;
+  color:var(--schrift);
+  padding:11px 14px;
+  border-radius:20px;
+  box-shadow:0 2px 12px #b6a6c433;
+  cursor:pointer;
 }
-button:active{transform:scale(.97)}
-input,textarea{
- font:inherit;color:inherit;
- border:1px solid #e4ddea;
- border-radius:13px;padding:11px;
- background:#fff;
+main {
+  max-width:720px;
+  margin:auto;
+  padding:0 16px 35px;
 }
-input[type=text]{flex:1;min-width:120px}
-input[type=date]{max-width:190px}
-textarea{width:100%;min-height:150px;resize:vertical}
-.stimmung{display:flex;justify-content:space-between;gap:5px}
-.stimmung button{font-size:23px;padding:10px}
-.aktiv{background:#c8eee7!important}
-.temperaturen{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}
-.temp{padding:15px;border-radius:18px;text-align:center}
-.temp input{width:85px;margin-top:8px}
-.tagtemp{background:#e3f6f2}
-.nachttemp{background:#f0e7f8}
-details summary{
- cursor:pointer;
- font-weight:bold;
- padding:7px 0;
- list-style:none;
+.panel {
+  background:#ffffffc9;
+  border-radius:22px;
+  padding:18px;
+  margin:15px 0;
+  box-shadow:0 4px 18px #a59ab51c;
 }
-details summary:after{content:"⌄";float:right}
-details[open] summary:after{content:"⌃"}
-.inhalt{padding-top:15px}
-.eintrag{padding:10px 0;border-bottom:1px solid #eee7f2}
-.eintrag button{float:right;padding:4px 9px}
-footer{text-align:center;padding:22px;font:italic 15px Georgia,serif}
-small{color:#897b95}
+.date-nav {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+button {
+  cursor:pointer;
+  font:inherit;
+}
+.arrow, .small-button {
+  border:0;
+  border-radius:13px;
+  background:var(--lila);
+  padding:10px 13px;
+  color:var(--schrift);
+}
+.date-title {
+  text-align:center;
+  font-size:17px;
+}
+input,textarea {
+  width:100%;
+  border:1px solid #ded6e5;
+  border-radius:12px;
+  padding:11px;
+  font:inherit;
+  color:var(--schrift);
+  background:white;
+  margin:6px 0;
+}
+textarea { min-height:100px; resize:vertical; }
+label { display:block; margin-top:12px; }
+details {
+  background:#ffffffbd;
+  border-radius:18px;
+  margin:12px 0;
+  padding:16px;
+}
+summary {
+  cursor:pointer;
+  font-weight:bold;
+}
+.emoji-row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:12px;
+}
+.emoji {
+  border:2px solid transparent;
+  border-radius:14px;
+  background:#f5effa;
+  padding:9px;
+  font-size:23px;
+}
+.emoji.active {
+  border-color:#9a7db8;
+  background:#e8d9f5;
+}
+.temp-row {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.menu-overlay {
+  display:none;
+  position:fixed;
+  inset:0;
+  background:#4d405680;
+  z-index:10;
+}
+.menu-overlay.open { display:block; }
+.menu {
+  width:min(340px,88vw);
+  height:100%;
+  overflow:auto;
+  background:linear-gradient(#f3eafa,#e3f7f4);
+  padding:24px 18px;
+  box-shadow:4px 0 20px #3333;
+}
+.menu-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.menu-item {
+  display:block;
+  width:100%;
+  text-align:left;
+  padding:16px;
+  margin:10px 0;
+  border:0;
+  border-radius:17px;
+  background:#ffffffd9;
+  color:var(--schrift);
+}
+.menu-item span {
+  display:block;
+  font-size:12px;
+  margin-top:4px;
+  opacity:.7;
+}
+.hidden { display:none; }
+.note {
+  font-size:13px;
+  opacity:.8;
+  line-height:1.5;
+}
+footer {
+  text-align:center;
+  padding:18px;
+  font-style:italic;
+  font-size:13px;
+  opacity:.7;
+}
 </style>
 </head>
 <body>
-<main>
+
 <header>
-<svg class="calla" viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">
-<path d="M72 150 Q68 100 84 51" fill="none" stroke="#78b4a2" stroke-width="4"/>
-<path d="M71 123 Q28 112 25 82 Q64 88 71 123" fill="#b4d9c9"/>
-<path d="M77 98 Q113 92 119 70 Q88 72 77 98" fill="#9acbb8"/>
-<path d="M84 68 C40 52 45 5 91 12 C123 15 127 49 84 68Z" fill="#fff" stroke="#d8c7e7" stroke-width="2"/>
-<path d="M84 68 Q112 29 91 12 Q98 45 84 68" fill="#e8dcf3"/>
-<path d="M84 57 L92 25" stroke="#e9bf62" stroke-width="6" stroke-linecap="round"/>
-</svg>
-<h1>Mein kleiner Alltagszauber</h1>
-<p>Ein bisschen Zeit nur für mich 💜</p>
+  <button class="menu-button" onclick="openMenu()">☰ Menü</button>
+
+  <svg class="calla" viewBox="0 0 100 115"
+       xmlns="http://www.w3.org/2000/svg">
+    <path d="M50 107 Q49 74 57 40"
+          fill="none" stroke="#6c9e7e"
+          stroke-width="4" stroke-linecap="round"/>
+    <path d="M57 53 Q25 43 30 16
+             Q55 4 76 25
+             Q81 47 57 53Z"
+          fill="#ffffff" stroke="#cbb7d9"
+          stroke-width="2"/>
+    <path d="M57 47 Q49 31 60 18"
+          fill="none" stroke="#e5bb57"
+          stroke-width="6" stroke-linecap="round"/>
+    <path d="M50 86 Q25 81 22 66
+             Q43 67 50 86"
+          fill="#90c5a3"/>
+  </svg>
+
+  <h1>Mein kleiner Alltagszauber</h1>
+  <div class="subtitle">Mein Tag · Meine Gedanken · Mein Leben</div>
 </header>
 
-<section class="karte">
-<div class="zeile">
-<button onclick="wechsel(-1)">❮</button>
-<input type="date" id="datum">
-<button onclick="wechsel(1)">❯</button>
-<button onclick="heute()">Heute</button>
+<div id="menuOverlay" class="menu-overlay"
+     onclick="closeMenu()">
+  <nav class="menu" onclick="event.stopPropagation()">
+    <div class="menu-head">
+      <h2>🌸 Meine Bereiche</h2>
+      <button class="small-button"
+              onclick="closeMenu()">✕</button>
+    </div>
+    <button class="menu-item" onclick="showPage('kalender')">
+      📅 Mein Kalender
+      <span>Tagesansicht und Tagebuch</span>
+    </button>
+    <button class="menu-item" onclick="showPage('finanzen')">
+      💜 Meine Finanzen
+      <span>Ausgaben und zwei Sparbücher</span>
+    </button>
+    <button class="menu-item" onclick="showPage('gewicht')">
+      ⚖️ Mein Gewicht
+      <span>Gewichtsverlauf und Ziele</span>
+    </button>
+    <button class="menu-item" onclick="showPage('todos')">
+      ✅ Meine To-dos
+      <span>Aufgaben und Erinnerungen</span>
+    </button>
+    <button class="menu-item" onclick="showPage('wetter')">
+      🌤️ Mein Wetter
+      <span>Tages- und Nachttemperaturen</span>
+    </button>
+    <button class="menu-item" onclick="showPage('notizen')">
+      📝 Meine Notizen
+      <span>Platz für meine Gedanken</span>
+    </button>
+  </nav>
 </div>
-<h2 id="tag" style="margin-top:18px"></h2>
-<p id="spruch"></p>
-</section>
 
-<section class="karte">
-<h2>💜 Wie fühle ich mich heute?</h2>
-<div class="stimmung" id="stimmung">
-<button onclick="wahl('stimmung','😍')">😍</button>
-<button onclick="wahl('stimmung','😊')">😊</button>
-<button onclick="wahl('stimmung','😐')">😐</button>
-<button onclick="wahl('stimmung','😔')">😔</button>
-<button onclick="wahl('stimmung','😴')">😴</button>
-</div>
-</section>
+<main>
+  <div id="kalender">
+    <section class="panel">
+      <div class="date-nav">
+        <button class="arrow" onclick="changeDay(-1)">❮</button>
+        <div class="date-title" id="dateTitle"></div>
+        <button class="arrow" onclick="changeDay(1)">❯</button>
+      </div>
+      <p id="quote" style="text-align:center;font-style:italic"></p>
+      <div style="text-align:center">
+        <button class="small-button" onclick="goToday()">
+          Heute
+        </button>
+      </div>
+    </section>
 
-<section class="karte">
-<h2>🌤️ Mein Wetter</h2>
-<div class="stimmung" id="wetter">
-<button onclick="wahl('wetter','☀️')">☀️</button>
-<button onclick="wahl('wetter','⛅')">⛅</button>
-<button onclick="wahl('wetter','☁️')">☁️</button>
-<button onclick="wahl('wetter','🌧️')">🌧️</button>
-<button onclick="wahl('wetter','❄️')">❄️</button>
-</div>
-<div class="temperaturen">
-<div class="temp tagtemp">
-☀️ Tag<br>
-<input type="number" id="tempTag" placeholder="°C">
-</div>
-<div class="temp nachttemp">
-🌙 Nacht<br>
-<input type="number" id="tempNacht" placeholder="°C">
-</div>
-</div>
-<p><small>Automatische Wetterdaten ergänzen wir später.</small></p>
-</section>
+    <section class="panel">
+      <h2>💜 Wie fühle ich mich heute?</h2>
+      <div class="emoji-row" id="moodButtons"></div>
+    </section>
 
-<section class="karte">
-<details>
-<summary>🌷 Nicht vergessen</summary>
-<div class="inhalt">
-<div class="zeile">
-<input id="termin" type="text" placeholder="Termin oder Erinnerung">
-<button onclick="hinzu('termin')">＋</button>
-</div>
-<div id="termine"></div>
-</div>
-</details>
-</section>
+    <details>
+      <summary>🌤️ Mein Wetter</summary>
+      <div class="emoji-row" id="weatherButtons"></div>
+      <div class="temp-row">
+        <label>☀️ Tag
+          <input type="number" id="tempDay"
+                 placeholder="°C" oninput="saveDay()">
+        </label>
+        <label>🌙 Nacht
+          <input type="number" id="tempNight"
+                 placeholder="°C" oninput="saveDay()">
+        </label>
+      </div>
+      <p class="note">
+        Die Temperaturen können vorerst manuell eingetragen
+        werden. Automatische Wetterdaten folgen später.
+      </p>
+    </details>
 
-<section class="karte">
-<details>
-<summary>📝 Meine To-dos</summary>
-<div class="inhalt">
-<div class="zeile">
-<input id="todo" type="text" placeholder="Was möchte ich erledigen?">
-<button onclick="hinzu('todo')">＋</button>
-</div>
-<div id="todos"></div>
-</div>
-</details>
-</section>
+    <details>
+      <summary>💌 Nicht vergessen</summary>
+      <textarea id="reminders" placeholder="Meine Termine und Erinnerungen ..."
+                oninput="saveDay()"></textarea>
+    </details>
 
-<section class="karte">
-<details>
-<summary>🎂 Geburtstage</summary>
-<div class="inhalt">
-<div class="zeile">
-<input id="geburtstag" type="text" placeholder="Wer hat Geburtstag?">
-<button onclick="hinzu('geburtstag')">＋</button>
-</div>
-<div id="geburtstage"></div>
-</div>
-</details>
-</section>
+    <details>
+      <summary>✅ Meine To-dos</summary>
+      <textarea id="tasks" placeholder="Was möchte ich erledigen?"
+                oninput="saveDay()"></textarea>
+    </details>
 
-<section class="karte">
-<details>
-<summary>📖 Mein Tagebuch</summary>
-<div class="inhalt">
-<p>Was hat meinen Tag besonders gemacht?</p>
-<textarea id="tagebuch" placeholder="Meine Gedanken..."></textarea>
-</div>
-</details>
-</section>
+    <details>
+      <summary>🎂 Geburtstage</summary>
+      <textarea id="birthdays" placeholder="Wen möchte ich heute feiern?"
+                oninput="saveDay()"></textarea>
+    </details>
 
-<footer>🌸 Die kleinen Dinge machen das Leben schön. 💜</footer>
+    <details>
+      <summary>📖 Mein Tagebuch</summary>
+      <textarea id="diary" placeholder="Was hat meinen Tag besonders gemacht?"
+                style="min-height:170px"
+                oninput="saveDay()"></textarea>
+    </details>
+  </div>
+
+  <section id="finanzen" class="panel hidden">
+    <h2>💜 Meine Finanzen</h2>
+    <p>Hier entstehen deine Haushaltsübersicht,
+       deine Ausgaben und deine beiden Sparbücher.</p>
+    <p class="note">Dieser Bereich wird als Nächstes ausgebaut.</p>
+  </section>
+
+  <section id="gewicht" class="panel hidden">
+    <h2>⚖️ Mein Gewicht</h2>
+    <p>Hier entstehen dein Gewichtstracker,
+       deine Ziele und ein grafischer Verlauf.</p>
+  </section>
+
+  <section id="todos" class="panel hidden">
+    <h2>✅ Meine To-dos</h2>
+    <p>Deine täglichen To-dos findest du bereits
+       im Tageskalender.</p>
+    <button class="small-button"
+            onclick="showPage('kalender')">
+      Zum Tageskalender
+    </button>
+  </section>
+
+  <section id="wetter" class="panel hidden">
+    <h2>🌤️ Mein Wetter</h2>
+    <p>Deine tägliche Wetterübersicht findest du
+       im Tageskalender.</p>
+    <p>Eine automatische Vorhersage für Tag und Nacht
+       ergänzen wir später.</p>
+    <button class="small-button"
+            onclick="showPage('kalender')">
+      Zum Tageskalender
+    </button>
+  </section>
+
+  <section id="notizen" class="panel hidden">
+    <h2>📝 Meine Notizen</h2>
+    <textarea id="generalNotes"
+      placeholder="Hier ist Platz für alles, was ich festhalten möchte ..."
+      style="min-height:220px"
+      oninput="saveNotes()"></textarea>
+  </section>
 </main>
 
-<script>
-const datum=document.getElementById('datum');
-const felder=['tempTag','tempNacht','tagebuch'];
-const listen={
- termin:'termine',
- todo:'todos',
- geburtstag:'geburtstage'
-};
-const sprueche=[
- 'Auch kleine Schritte bringen dich weiter.',
- 'Heute darfst du einfach du selbst sein.',
- 'Die kleinen Dinge machen das Leben schön.',
- 'Ein neuer Tag, eine neue Möglichkeit.',
- 'Schenk dir heute ein Lächeln.'
-];
-let daten={};
+<footer>🌸 Ein bisschen Zeit nur für mich 💜</footer>
 
-function schluessel(){
- return 'alltag-'+datum.value;
+<script>
+let currentDate = new Date();
+currentDate.setHours(12,0,0,0);
+
+let selectedMood = "";
+let selectedWeather = "";
+
+const moods = ["😍","😊","🙂","😐","😔","😢"];
+const weathers = ["☀️","🌤️","⛅","☁️","🌧️","❄️"];
+
+const quotes = [
+  "Jeder Tag hält kleine Wunder bereit.",
+  "Auch kleine Schritte bringen dich weiter.",
+  "Heute darfst du einfach du selbst sein.",
+  "Die schönsten Momente sind oft die kleinen.",
+  "Ein neuer Tag, ein neuer Anfang.",
+  "Nimm dir Zeit für das, was dir guttut.",
+  "Manchmal ist weniger einfach mehr."
+];
+
+function dateKey() {
+  const y = currentDate.getFullYear();
+  const m = String(currentDate.getMonth()+1).padStart(2,"0");
+  const d = String(currentDate.getDate()).padStart(2,"0");
+  return y+"-"+m+"-"+d;
 }
-function speichern(){
- localStorage.setItem(schluessel(),JSON.stringify(daten));
+
+function storageKey() {
+  return "alltagszauber-v3-"+dateKey();
 }
-function laden(){
- try{
-  daten=JSON.parse(localStorage.getItem(schluessel()))||{};
- }catch(e){daten={};}
- felder.forEach(id=>{
-  document.getElementById(id).value=daten[id]||'';
- });
- document.querySelectorAll('.stimmung button').forEach(b=>{
-  const art=b.parentElement.id;
-  b.classList.toggle('aktiv',b.textContent===daten[art]);
- });
- Object.keys(listen).forEach(anzeigen);
- const d=new Date(datum.value+'T12:00:00');
- document.getElementById('tag').textContent=
- d.toLocaleDateString('de-DE',{
- weekday:'long',day:'numeric',month:'long',year:'numeric'
- });
- const nummer=Math.floor(d.getTime()/86400000);
- document.getElementById('spruch').textContent=
- '✨ '+sprueche[Math.abs(nummer)%sprueche.length];
+
+function openMenu() {
+  document.getElementById("menuOverlay").classList.add("open");
 }
-function wahl(art,wert){
- daten[art]=wert;
- speichern();
- laden();
+
+function closeMenu() {
+  document.getElementById("menuOverlay").classList.remove("open");
 }
-function hinzu(art){
- const feld=document.getElementById(art);
- const wert=feld.value.trim();
- if(!wert)return;
- if(!Array.isArray(daten[art]))daten[art]=[];
- daten[art].push(wert);
- feld.value='';
- speichern();
- anzeigen(art);
+
+function showPage(page) {
+  ["kalender","finanzen","gewicht","todos","wetter","notizen"]
+    .forEach(id => {
+      document.getElementById(id).classList.toggle("hidden",id!==page);
+    });
+  closeMenu();
+  window.scrollTo(0,0);
 }
-function entfernen(art,index){
- daten[art].splice(index,1);
- speichern();
- anzeigen(art);
+
+function changeDay(days) {
+  currentDate.setDate(currentDate.getDate()+days);
+  loadDay();
 }
-function anzeigen(art){
- const ziel=document.getElementById(listen[art]);
- ziel.replaceChildren();
- (daten[art]||[]).forEach((wert,index)=>{
-  const zeile=document.createElement('div');
-  zeile.className='eintrag';
-  const text=document.createElement('span');
-  text.textContent='• '+wert;
-  const knopf=document.createElement('button');
-  knopf.textContent='✕';
-  knopf.onclick=()=>entfernen(art,index);
-  zeile.append(text,knopf);
-  ziel.append(zeile);
- });
+
+function goToday() {
+  currentDate = new Date();
+  currentDate.setHours(12,0,0,0);
+  loadDay();
 }
-function wechselnDatum(d){
- datum.value=d.toLocaleDateString('sv-SE');
- laden();
+
+function createEmojiButtons(containerId,values,type) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+
+  values.forEach(emoji => {
+    const button = document.createElement("button");
+    button.className = "emoji";
+    button.textContent = emoji;
+
+    const active = type==="mood" ? selectedMood : selectedWeather;
+    if (active===emoji) button.classList.add("active");
+
+    button.onclick = () => {
+      if (type==="mood") selectedMood=emoji;
+      else selectedWeather=emoji;
+      saveDay();
+      renderEmojis();
+    };
+
+    container.appendChild(button);
+  });
 }
-function wechsel(tage){
- const d=new Date(datum.value+'T12:00:00');
- d.setDate(d.getDate()+tage);
- wechselnDatum(d);
+
+function renderEmojis() {
+  createEmojiButtons("moodButtons",moods,"mood");
+  createEmojiButtons("weatherButtons",weathers,"weather");
 }
-function heute(){wechselnDatum(new Date())}
-datum.addEventListener('change',laden);
-felder.forEach(id=>{
- document.getElementById(id).addEventListener('input',e=>{
-  daten[id]=e.target.value;
-  speichern();
- });
-});
-heute();
+
+function saveDay() {
+  const data = {
+    mood:selectedMood,
+    weather:selectedWeather,
+    tempDay:document.getElementById("tempDay").value,
+    tempNight:document.getElementById("tempNight").value,
+    reminders:document.getElementById("reminders").value,
+    tasks:document.getElementById("tasks").value,
+    birthdays:document.getElementById("birthdays").value,
+    diary:document.getElementById("diary").value
+  };
+  try {
+    localStorage.setItem(storageKey(),JSON.stringify(data));
+  } catch(error) {
+    console.warn("Speichern nicht möglich",error);
+  }
+}
+
+function loadDay() {
+  const formatted = currentDate.toLocaleDateString("de-DE",{
+    weekday:"long",day:"numeric",month:"long",year:"numeric"
+  });
+  document.getElementById("dateTitle").textContent=formatted;
+
+  const dayIndex=Math.floor(
+    new Date(currentDate.getFullYear(),currentDate.getMonth(),
+             currentDate.getDate()).getTime()/86400000
+  );
+  document.getElementById("quote").textContent =
+    quotes[((dayIndex%quotes.length)+quotes.length)%quotes.length];
+
+  let data={};
+  try {
+    data=JSON.parse(localStorage.getItem(storageKey())||"{}")||{};
+  } catch(error) {
+    data={};
+  }
+
+  selectedMood=data.mood||"";
+  selectedWeather=data.weather||"";
+
+  ["tempDay","tempNight","reminders","tasks","birthdays","diary"]
+    .forEach(id => {
+      document.getElementById(id).value=data[id]||"";
+    });
+
+  renderEmojis();
+}
+
+function saveNotes() {
+  try {
+    localStorage.setItem(
+      "alltagszauber-v3-notizen",
+      document.getElementById("generalNotes").value
+    );
+  } catch(error) {
+    console.warn("Notizen konnten nicht gespeichert werden",error);
+  }
+}
+
+try {
+  document.getElementById("generalNotes").value =
+    localStorage.getItem("alltagszauber-v3-notizen")||"";
+} catch(error) {}
+
+loadDay();
+showPage("kalender");
 </script>
 </body>
 </html>
