@@ -275,7 +275,7 @@ footer {
 </svg>
 
 <header>
-  <button class="menu-button" onclick="openMenu()">☰ Menü</button>
+  <button class="menu-button" onclick="openMenu()">☰ Menü</button><select aria-label="Bereich auswählen" onchange="if(this.value){showPage(this.value);this.value=''}" style="position:absolute;right:12px;top:66px;z-index:12;width:155px;padding:7px"><option value="">Bereich wählen</option><option value="kalender">Kalender</option><option value="finanzen">Finanzen</option><option value="sparen">Sparbücher</option><option value="gewicht">Gewicht</option><option value="notizen">Notizen</option></select>
   <svg class="calla" viewBox="0 0 150 210"
        aria-label="Weiße Calla in Aquarelloptik">
     <use href="#callaArt"/>
@@ -360,7 +360,7 @@ footer {
       <summary>📅 Mein Kalender</summary>
       <div id="eventList"></div>
       <button class="small-button" onclick="document.getElementById('eventForm').classList.toggle('hidden')">＋ Hinzufügen</button>
-      <div id="eventForm" class="hidden"><label>Bezeichnung<input id="eventName" placeholder="Was steht an?"></label><label>Datum<input id="eventDate" type="date"></label><label>Uhrzeit (optional)<input id="eventTime" type="time"></label><label><input type="checkbox" id="eventBirthday" style="width:auto"> Geburtstag</label><input id="eventYear" type="number" placeholder="Geburtsjahr (optional)"><button class="small-button" onclick="addEvent()">Speichern</button></div>
+      <div id="eventForm" class="hidden"><label>Bezeichnung<input id="eventName" placeholder="Was steht an?"></label><label>Datum<input id="eventDate" type="date"></label><label>Uhrzeit (optional)<input id="eventTime" type="time"></label><label><input type="checkbox" id="eventBirthday" style="width:auto"> Geburtstag</label><input id="eventYear" type="number" placeholder="Geburtsjahr (optional)"><button class="small-button" onclick="addEvent()">Speichern</button><button class="small-button" onclick="cancelEventEdit()">Abbrechen</button></div>
       <div class="hidden">
       <textarea id="reminders"
         placeholder="Meine Termine und Erinnerungen ..."
@@ -472,10 +472,10 @@ function storageKey(){
   return "alltagszauber-v3-"+dateKey();
 }
 function openMenu(){
-  document.getElementById("menuOverlay").classList.add("open");
+  document.getElementById("menuOverlay").classList.add("open");document.getElementById("menuOverlay").style.display="block";
 }
 function closeMenu(){
-  document.getElementById("menuOverlay").classList.remove("open");
+  document.getElementById("menuOverlay").classList.remove("open");document.getElementById("menuOverlay").style.display="none";
 }
 function showPage(page){
   ["kalender","finanzen","sparen","gewicht","todos","wetter","notizen"]
@@ -580,8 +580,10 @@ const EVTKEY="az-test-events",TODOKEY="az-test-todos";
 function readExtra(k){try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return {}}}
 function saveExtra(k,a){localStorage.setItem(k,JSON.stringify(a))}
 function safeExtra(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function addEvent(){const n=document.getElementById("eventName"),name=n.value.trim();if(!name)return;const a=readExtra(EVTKEY),d=document.getElementById("eventDate").value||dateKey();(a[d] ||= []).push({id:Date.now(),name,time:document.getElementById("eventTime").value,birthday:document.getElementById("eventBirthday").checked,year:document.getElementById("eventYear").value});saveExtra(EVTKEY,a);n.value="";document.getElementById("eventTime").value="";renderExtra()}
-function changeEvent(id,del){const a=readExtra(EVTKEY),d=dateKey();if(del)a[d]=(a[d]||[]).filter(x=>x.id!==id);else{const x=(a[d]||[]).find(x=>x.id===id);if(x){const n=prompt("Eintrag bearbeiten",x.name);if(n!==null&&n.trim())x.name=n.trim()}}saveExtra(EVTKEY,a);renderExtra()}
+let editingEventId=null,editingEventDay=null;
+function cancelEventEdit(){editingEventId=null;editingEventDay=null;["eventName","eventTime","eventYear"].forEach(id=>document.getElementById(id).value="");document.getElementById("eventBirthday").checked=false;document.getElementById("eventDate").value=dateKey();document.getElementById("eventForm").classList.add("hidden")}
+function addEvent(){const name=document.getElementById("eventName").value.trim();if(!name)return alert("Bitte Bezeichnung eingeben");const all=readExtra(EVTKEY),day=document.getElementById("eventDate").value||dateKey();const e={id:editingEventId||Date.now(),name,time:document.getElementById("eventTime").value,birthday:document.getElementById("eventBirthday").checked,year:document.getElementById("eventYear").value};if(editingEventId!==null)all[editingEventDay]=(all[editingEventDay]||[]).filter(x=>x.id!==editingEventId);(all[day] ||= []).push(e);saveExtra(EVTKEY,all);cancelEventEdit();renderExtra()}
+function changeEvent(id,del){const all=readExtra(EVTKEY),day=dateKey(),e=(all[day]||[]).find(x=>x.id===id);if(!e)return;if(del){all[day]=all[day].filter(x=>x.id!==id);saveExtra(EVTKEY,all);renderExtra();return}editingEventId=id;editingEventDay=day;document.getElementById("eventName").value=e.name;document.getElementById("eventDate").value=day;document.getElementById("eventTime").value=e.time||"";document.getElementById("eventBirthday").checked=!!e.birthday;document.getElementById("eventYear").value=e.year||"";document.getElementById("eventForm").classList.remove("hidden");document.getElementById("eventName").focus()}
 function addTodo(){const n=document.getElementById("todoName"),name=n.value.trim();if(!name)return;const a=readExtra(TODOKEY);(a[dateKey()] ||= []).push({id:Date.now(),name,done:false});saveExtra(TODOKEY,a);n.value="";renderExtra()}
 function changeTodo(d,id,mode){const a=readExtra(TODOKEY),items=a[d]||[],x=items.find(x=>x.id===id);if(!x)return;if(mode==="done")x.done=!x.done;if(mode==="edit"){const n=prompt("Aufgabe bearbeiten",x.name);if(n!==null&&n.trim())x.name=n.trim()}if(mode==="delete")a[d]=items.filter(x=>x.id!==id);saveExtra(TODOKEY,a);renderExtra()}
 function renderExtra(){const dateInput=document.getElementById("eventDate");if(dateInput&&document.activeElement!==dateInput)dateInput.value=dateKey();const d=dateKey(),events=(readExtra(EVTKEY)[d]||[]).slice().sort((a,b)=>Number(b.birthday)-Number(a.birthday)||a.time.localeCompare(b.time));
