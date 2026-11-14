@@ -225,7 +225,7 @@ footer {
   top:10%;
   transform:rotate(25deg);
 }
-.item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #ddd}.item span{flex:1}.item button{border:0;background:transparent;color:#655778}.item input[type=checkbox]{width:auto;margin:0}select{width:100%;font:inherit;color:var(--ink);padding:12px;margin-top:8px;border:1px solid #e0d8e7;border-radius:15px;background:#ffffffd9}.summary-total{padding:10px 0;font-weight:bold}</style>
+.item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #ddd}.item span{flex:1}.item button{border:0;background:transparent;color:#655778}.item input[type=checkbox]{width:auto;margin:0}select{width:100%;font:inherit;color:var(--ink);padding:12px;margin-top:8px;border:1px solid #e0d8e7;border-radius:15px;background:#ffffffd9}.summary-total{padding:10px 0;font-weight:bold}.area-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.area-tile{min-height:105px;border:1px solid #fff;border-radius:22px;padding:14px 9px;background:linear-gradient(140deg,#f0e8f9,#e2f6f1);color:#655778;text-align:center;font-size:23px}.area-tile strong{display:block;font-size:15px;margin:6px 0}.area-tile small{display:block;font-size:11px;opacity:.75}</style>
 </head>
 <body>
 
@@ -278,7 +278,6 @@ footer {
 </svg>
 
 <header>
-  <button class="menu-button" type="button" onclick="openMenu()">☰ Menü</button><select aria-label="Bereich auswählen" onchange="if(this.value){showPage(this.value);this.value=''}" style="position:absolute;right:12px;top:66px;z-index:12;width:155px;padding:7px"><option value="">Bereich wählen</option><option value="kalender">Kalender</option><option value="finanzen">Finanzen</option><option value="sparen">Sparbücher</option><option value="gewicht">Gewicht</option><option value="notizen">Notizen</option></select>
   <svg class="calla" viewBox="0 0 150 210"
        aria-label="Weiße Calla in Aquarelloptik">
     <use href="#callaArt"/>
@@ -286,41 +285,6 @@ footer {
   <h1>Mein kleiner Alltagszauber</h1>
   <div class="subtitle">Mein Tag · Meine Gedanken · Mein Leben</div>
 </header>
-
-<div id="menuOverlay" class="menu-overlay"
-     onclick="closeMenu()">
-  <nav class="menu" onclick="event.stopPropagation()">
-    <div class="menu-head">
-      <h2>🌸 Meine Bereiche</h2>
-      <button class="small-button" onclick="closeMenu()">✕</button>
-    </div>
-    <button class="menu-item" onclick="showPage('kalender')">
-      📅 Mein Kalender
-      <span>Tagesansicht und Tagebuch</span>
-    </button>
-    <button class="menu-item" onclick="showPage('finanzen')">
-      💜 Meine Finanzen
-      <span>Ausgaben und zwei Sparbücher</span>
-    </button>
-    <button class="menu-item" onclick="showPage('sparen')">🏦 Meine Sparbücher<span>Beide Sparkonten im Überblick</span></button>
-    <button class="menu-item" onclick="showPage('gewicht')">
-      ⚖️ Mein Gewicht
-      <span>Gewichtsverlauf und Ziele</span>
-    </button>
-    <button class="menu-item" onclick="showPage('todos')">
-      ✅ Meine To-dos
-      <span>Aufgaben und Erinnerungen</span>
-    </button>
-    <button class="menu-item" onclick="showPage('wetter')">
-      🌤️ Mein Wetter
-      <span>Tages- und Nachttemperaturen</span>
-    </button>
-    <button class="menu-item" onclick="showPage('notizen')">
-      📝 Meine Notizen
-      <span>Gedanken und Ideen</span>
-    </button>
-  </nav>
-</div>
 
 <main>
   <div id="kalender">
@@ -393,7 +357,7 @@ footer {
     </details>
   </div>
 
-  <section id="finanzen" class="panel hidden">
+  <section id="finanzen" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button>
     <h2>💜 Meine Finanzen</h2>
     <p>Meine Einnahmen und Ausgaben</p>
     <div id="financeSummary"></div><div id="financeList"></div>
@@ -404,7 +368,7 @@ footer {
     <p class="note">Die Daten werden vorerst nur in diesem Browser gespeichert. Bitte noch keine vertraulichen Finanzdaten eingeben.</p>
   </section>
 
-  <section id="sparen" class="panel hidden"><h2>🏦 Meine beiden Sparbücher</h2>
+  <section id="sparen" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button><h2>🏦 Meine beiden Sparbücher</h2>
     <div id="savingsList"></div>
     <label>Sparbuch<select id="savingAccount"><option value="0">Sparbuch 1</option><option value="1">Sparbuch 2</option></select></label>
     <label>Bezeichnung<input id="savingName" placeholder="z. B. Einzahlung"></label>
@@ -412,13 +376,13 @@ footer {
     <button class="small-button" onclick="addSaving()">Buchung speichern</button>
     <p class="note">Testversion: Bitte nur Beispieldaten verwenden.</p>
   </section>
-  <section id="gewicht" class="panel hidden">
+  <section id="gewicht" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button>
     <h2>⚖️ Mein Gewicht</h2>
     <p>Hier entstehen dein Gewichtstracker,
        deine Ziele und dein grafischer Verlauf.</p>
   </section>
 
-  <section id="todos" class="panel hidden">
+  <section id="todos" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button>
     <h2>✅ Meine To-dos</h2>
     <p>Deine täglichen To-dos findest du im Tageskalender.</p>
     <button class="small-button" onclick="showPage('kalender')">
@@ -426,7 +390,7 @@ footer {
     </button>
   </section>
 
-  <section id="wetter" class="panel hidden">
+  <section id="wetter" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button>
     <h2>🌤️ Mein Wetter</h2>
     <p>Deine Wetterübersicht findest du im Tageskalender.</p>
     <p>Die automatische Vorhersage ergänzen wir später.</p>
@@ -435,14 +399,21 @@ footer {
     </button>
   </section>
 
-  <section id="notizen" class="panel hidden">
+  <section id="notizen" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button>
     <h2>📝 Meine Notizen</h2>
     <textarea id="generalNotes"
       placeholder="Hier ist Platz für meine Gedanken ..."
       style="min-height:220px"
       oninput="saveNotes()"></textarea>
   </section>
-</main>
+<section class="panel" id="bereiche"><h2>🌸 Meine Bereiche</h2><div class="area-grid">
+<button class="area-tile" onclick="showPage('finanzen')">💜 <strong>Meine Finanzen</strong><small>Einnahmen und Ausgaben</small></button>
+<button class="area-tile" onclick="showPage('sparen')">🏦 <strong>Meine Sparbücher</strong><small>Beide Sparkonten</small></button>
+<button class="area-tile" onclick="showPage('gewicht')">⚖️ <strong>Mein Wohlfühlweg</strong><small>Gewichtsentwicklung</small></button>
+<button class="area-tile" onclick="showPage('notizen')">📝 <strong>Meine Notizen</strong><small>Ideen und Gedanken</small></button>
+<button class="area-tile" onclick="showPage('todos')">✅ <strong>Meine To-dos</strong><small>Aufgaben</small></button>
+<button class="area-tile" onclick="showPage('kalender')">📅 <strong>Mein Kalender</strong><small>Zur Tagesübersicht</small></button>
+</div></section></main>
 
 <footer>🌸 Ein bisschen Zeit nur für mich 💜</footer>
 
@@ -473,20 +444,7 @@ function dateKey(){
 function storageKey(){
   return "alltagszauber-v3-"+dateKey();
 }
-function openMenu(){
-  document.getElementById("menuOverlay").classList.add("open");document.getElementById("menuOverlay").style.display="block";
-}
-function closeMenu(){
-  document.getElementById("menuOverlay").classList.remove("open");document.getElementById("menuOverlay").style.display="none";
-}
-function showPage(page){
-  ["kalender","finanzen","sparen","gewicht","todos","wetter","notizen"]
-    .forEach(id=>{
-      document.getElementById(id).classList.toggle("hidden",id!==page);
-    });
-  closeMenu();
-  window.scrollTo(0,0);
-}
+function showPage(page){["kalender","finanzen","sparen","gewicht","todos","wetter","notizen"].forEach(id=>document.getElementById(id).classList.toggle("hidden",id!==page));document.getElementById("bereiche").classList.toggle("hidden",page!=="kalender");window.scrollTo(0,0)}
 function changeDay(days){
   currentDate.setDate(currentDate.getDate()+days);
   loadDay();
