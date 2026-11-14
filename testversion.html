@@ -222,7 +222,7 @@ footer {
   top:10%;
   transform:rotate(25deg);
 }
-</style>
+.item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #ddd}.item span{flex:1}.item button{border:0;background:transparent;color:#655778}.item input[type=checkbox]{width:auto;margin:0}</style>
 </head>
 <body>
 
@@ -337,7 +337,7 @@ footer {
       <div class="emoji-row" id="moodButtons"></div>
     </section>
 
-    <details>
+    <details open>
       <summary>🌤️ Mein Wetter</summary>
       <div class="emoji-row" id="weatherButtons"></div>
       <div class="temp-row">
@@ -356,20 +356,25 @@ footer {
     </details>
 
     <details>
-      <summary>💌 Nicht vergessen</summary>
+      <summary>📅 Mein Kalender</summary>
+      <div id="eventList"></div>
+      <button class="small-button" onclick="document.getElementById('eventForm').classList.toggle('hidden')">＋ Hinzufügen</button>
+      <div id="eventForm" class="hidden"><input id="eventName" placeholder="Termin oder Geburtstag"><input id="eventTime" placeholder="Uhrzeit, z. B. 14:30 (optional)"><label><input type="checkbox" id="eventBirthday" style="width:auto"> Geburtstag</label><input id="eventYear" type="number" placeholder="Geburtsjahr (optional)"><button class="small-button" onclick="addEvent()">Speichern</button></div>
+      <div class="hidden">
       <textarea id="reminders"
         placeholder="Meine Termine und Erinnerungen ..."
-        oninput="saveDay()"></textarea>
+        oninput="saveDay()"></textarea></div>
     </details>
 
     <details>
       <summary>✅ Meine To-dos</summary>
+      <div id="todoList"></div><button class="small-button" onclick="document.getElementById('todoForm').classList.toggle('hidden')">＋ Hinzufügen</button><div id="todoForm" class="hidden"><input id="todoName" placeholder="Neue Aufgabe"><button class="small-button" onclick="addTodo()">Speichern</button></div><div class="hidden">
       <textarea id="tasks"
         placeholder="Was möchte ich erledigen?"
-        oninput="saveDay()"></textarea>
+        oninput="saveDay()"></textarea></div>
     </details>
 
-    <details>
+    <details class="hidden">
       <summary>🎂 Geburtstage</summary>
       <textarea id="birthdays"
         placeholder="Wen möchte ich heute feiern?"
@@ -557,6 +562,22 @@ try{
 }catch(error){}
 loadDay();
 showPage("kalender");
+
+const EVTKEY="az-test-events",TODOKEY="az-test-todos";
+function readExtra(k){try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return {}}}
+function saveExtra(k,a){localStorage.setItem(k,JSON.stringify(a))}
+function safeExtra(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function addEvent(){const n=document.getElementById("eventName"),name=n.value.trim();if(!name)return;const a=readExtra(EVTKEY),d=dateKey();(a[d] ||= []).push({id:Date.now(),name,time:document.getElementById("eventTime").value,birthday:document.getElementById("eventBirthday").checked,year:document.getElementById("eventYear").value});saveExtra(EVTKEY,a);n.value="";document.getElementById("eventTime").value="";renderExtra()}
+function changeEvent(id,del){const a=readExtra(EVTKEY),d=dateKey();if(del)a[d]=(a[d]||[]).filter(x=>x.id!==id);else{const x=(a[d]||[]).find(x=>x.id===id);if(x){const n=prompt("Eintrag bearbeiten",x.name);if(n!==null&&n.trim())x.name=n.trim()}}saveExtra(EVTKEY,a);renderExtra()}
+function addTodo(){const n=document.getElementById("todoName"),name=n.value.trim();if(!name)return;const a=readExtra(TODOKEY);(a[dateKey()] ||= []).push({id:Date.now(),name,done:false});saveExtra(TODOKEY,a);n.value="";renderExtra()}
+function changeTodo(d,id,mode){const a=readExtra(TODOKEY),items=a[d]||[],x=items.find(x=>x.id===id);if(!x)return;if(mode==="done")x.done=!x.done;if(mode==="edit"){const n=prompt("Aufgabe bearbeiten",x.name);if(n!==null&&n.trim())x.name=n.trim()}if(mode==="delete")a[d]=items.filter(x=>x.id!==id);saveExtra(TODOKEY,a);renderExtra()}
+function renderExtra(){const d=dateKey(),events=(readExtra(EVTKEY)[d]||[]).slice().sort((a,b)=>Number(b.birthday)-Number(a.birthday)||a.time.localeCompare(b.time));
+document.getElementById("eventList").innerHTML=events.map(x=>'<div class="item"><span>'+(x.birthday?'🎂 ':'📌 ')+safeExtra(x.name)+(x.time?' · '+safeExtra(x.time):'')+'</span><button onclick="changeEvent('+x.id+',false)">✎</button><button onclick="changeEvent('+x.id+',true)">×</button></div>').join("");
+const a=readExtra(TODOKEY),tasks=[];Object.keys(a).sort().forEach(k=>{if(k<=d)(a[k]||[]).forEach(x=>{if(k===d||!x.done)tasks.push({...x,day:k})})});
+document.getElementById("todoList").innerHTML=tasks.map(x=>'<div class="item"><input type="checkbox" '+(x.done?'checked ':'')+'onchange="changeTodo(\''+x.day+'\','+x.id+',\'done\')"><span>'+safeExtra(x.name)+'</span><button onclick="changeTodo(\''+x.day+'\','+x.id+',\'edit\')">✎</button><button onclick="changeTodo(\''+x.day+'\','+x.id+',\'delete\')">×</button></div>').join("");
+}
+const previousLoadDay=loadDay;loadDay=function(){previousLoadDay();renderExtra()};renderExtra();
+
 </script>
 </body>
 </html>
