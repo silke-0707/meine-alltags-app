@@ -222,7 +222,7 @@ footer {
   top:10%;
   transform:rotate(25deg);
 }
-.item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #ddd}.item span{flex:1}.item button{border:0;background:transparent;color:#655778}.item input[type=checkbox]{width:auto;margin:0}</style>
+.item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #ddd}.item span{flex:1}.item button{border:0;background:transparent;color:#655778}.item input[type=checkbox]{width:auto;margin:0}select{width:100%;font:inherit;color:var(--ink);padding:12px;margin-top:8px;border:1px solid #e0d8e7;border-radius:15px;background:#ffffffd9}.summary-total{padding:10px 0;font-weight:bold}</style>
 </head>
 <body>
 
@@ -299,6 +299,7 @@ footer {
       💜 Meine Finanzen
       <span>Ausgaben und zwei Sparbücher</span>
     </button>
+    <button class="menu-item" onclick="showPage('sparen')">🏦 Meine Sparbücher<span>Beide Sparkonten im Überblick</span></button>
     <button class="menu-item" onclick="showPage('gewicht')">
       ⚖️ Mein Gewicht
       <span>Gewichtsverlauf und Ziele</span>
@@ -359,7 +360,7 @@ footer {
       <summary>📅 Mein Kalender</summary>
       <div id="eventList"></div>
       <button class="small-button" onclick="document.getElementById('eventForm').classList.toggle('hidden')">＋ Hinzufügen</button>
-      <div id="eventForm" class="hidden"><input id="eventName" placeholder="Termin oder Geburtstag"><input id="eventTime" placeholder="Uhrzeit, z. B. 14:30 (optional)"><label><input type="checkbox" id="eventBirthday" style="width:auto"> Geburtstag</label><input id="eventYear" type="number" placeholder="Geburtsjahr (optional)"><button class="small-button" onclick="addEvent()">Speichern</button></div>
+      <div id="eventForm" class="hidden"><label>Bezeichnung<input id="eventName" placeholder="Was steht an?"></label><label>Datum<input id="eventDate" type="date"></label><label>Uhrzeit (optional)<input id="eventTime" type="time"></label><label><input type="checkbox" id="eventBirthday" style="width:auto"> Geburtstag</label><input id="eventYear" type="number" placeholder="Geburtsjahr (optional)"><button class="small-button" onclick="addEvent()">Speichern</button></div>
       <div class="hidden">
       <textarea id="reminders"
         placeholder="Meine Termine und Erinnerungen ..."
@@ -392,11 +393,23 @@ footer {
 
   <section id="finanzen" class="panel hidden">
     <h2>💜 Meine Finanzen</h2>
-    <p>Hier entstehen deine Haushaltsübersicht,
-       deine Ausgaben und deine beiden Sparbücher.</p>
-    <p class="note">Diesen Bereich bauen wir später aus.</p>
+    <p>Meine Einnahmen und Ausgaben</p>
+    <div id="financeSummary"></div><div id="financeList"></div>
+    <label>Art<select id="financeType"><option value="Ausgabe">Ausgabe</option><option value="Einnahme">Einnahme</option></select></label>
+    <label>Beschreibung<input id="financeName" placeholder="z. B. Lebensmittel"></label>
+    <label>Betrag in €<input id="financeAmount" type="number" step="0.01" min="0" placeholder="0,00"></label>
+    <button class="small-button" onclick="addFinance()">Buchung hinzufügen</button>
+    <p class="note">Die Daten werden vorerst nur in diesem Browser gespeichert. Bitte noch keine vertraulichen Finanzdaten eingeben.</p>
   </section>
 
+  <section id="sparen" class="panel hidden"><h2>🏦 Meine beiden Sparbücher</h2>
+    <div id="savingsList"></div>
+    <label>Sparbuch<select id="savingAccount"><option value="0">Sparbuch 1</option><option value="1">Sparbuch 2</option></select></label>
+    <label>Bezeichnung<input id="savingName" placeholder="z. B. Einzahlung"></label>
+    <label>Betrag in € (Auszahlung mit Minus)<input id="savingAmount" type="number" step="0.01" placeholder="0,00"></label>
+    <button class="small-button" onclick="addSaving()">Buchung speichern</button>
+    <p class="note">Testversion: Bitte nur Beispieldaten verwenden.</p>
+  </section>
   <section id="gewicht" class="panel hidden">
     <h2>⚖️ Mein Gewicht</h2>
     <p>Hier entstehen dein Gewichtstracker,
@@ -465,7 +478,7 @@ function closeMenu(){
   document.getElementById("menuOverlay").classList.remove("open");
 }
 function showPage(page){
-  ["kalender","finanzen","gewicht","todos","wetter","notizen"]
+  ["kalender","finanzen","sparen","gewicht","todos","wetter","notizen"]
     .forEach(id=>{
       document.getElementById(id).classList.toggle("hidden",id!==page);
     });
@@ -567,17 +580,27 @@ const EVTKEY="az-test-events",TODOKEY="az-test-todos";
 function readExtra(k){try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return {}}}
 function saveExtra(k,a){localStorage.setItem(k,JSON.stringify(a))}
 function safeExtra(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function addEvent(){const n=document.getElementById("eventName"),name=n.value.trim();if(!name)return;const a=readExtra(EVTKEY),d=dateKey();(a[d] ||= []).push({id:Date.now(),name,time:document.getElementById("eventTime").value,birthday:document.getElementById("eventBirthday").checked,year:document.getElementById("eventYear").value});saveExtra(EVTKEY,a);n.value="";document.getElementById("eventTime").value="";renderExtra()}
+function addEvent(){const n=document.getElementById("eventName"),name=n.value.trim();if(!name)return;const a=readExtra(EVTKEY),d=document.getElementById("eventDate").value||dateKey();(a[d] ||= []).push({id:Date.now(),name,time:document.getElementById("eventTime").value,birthday:document.getElementById("eventBirthday").checked,year:document.getElementById("eventYear").value});saveExtra(EVTKEY,a);n.value="";document.getElementById("eventTime").value="";renderExtra()}
 function changeEvent(id,del){const a=readExtra(EVTKEY),d=dateKey();if(del)a[d]=(a[d]||[]).filter(x=>x.id!==id);else{const x=(a[d]||[]).find(x=>x.id===id);if(x){const n=prompt("Eintrag bearbeiten",x.name);if(n!==null&&n.trim())x.name=n.trim()}}saveExtra(EVTKEY,a);renderExtra()}
 function addTodo(){const n=document.getElementById("todoName"),name=n.value.trim();if(!name)return;const a=readExtra(TODOKEY);(a[dateKey()] ||= []).push({id:Date.now(),name,done:false});saveExtra(TODOKEY,a);n.value="";renderExtra()}
 function changeTodo(d,id,mode){const a=readExtra(TODOKEY),items=a[d]||[],x=items.find(x=>x.id===id);if(!x)return;if(mode==="done")x.done=!x.done;if(mode==="edit"){const n=prompt("Aufgabe bearbeiten",x.name);if(n!==null&&n.trim())x.name=n.trim()}if(mode==="delete")a[d]=items.filter(x=>x.id!==id);saveExtra(TODOKEY,a);renderExtra()}
-function renderExtra(){const d=dateKey(),events=(readExtra(EVTKEY)[d]||[]).slice().sort((a,b)=>Number(b.birthday)-Number(a.birthday)||a.time.localeCompare(b.time));
+function renderExtra(){const dateInput=document.getElementById("eventDate");if(dateInput&&document.activeElement!==dateInput)dateInput.value=dateKey();const d=dateKey(),events=(readExtra(EVTKEY)[d]||[]).slice().sort((a,b)=>Number(b.birthday)-Number(a.birthday)||a.time.localeCompare(b.time));
 document.getElementById("eventList").innerHTML=events.map(x=>'<div class="item"><span>'+(x.birthday?'🎂 ':'📌 ')+safeExtra(x.name)+(x.time?' · '+safeExtra(x.time):'')+'</span><button onclick="changeEvent('+x.id+',false)">✎</button><button onclick="changeEvent('+x.id+',true)">×</button></div>').join("");
 const a=readExtra(TODOKEY),tasks=[];Object.keys(a).sort().forEach(k=>{if(k<=d)(a[k]||[]).forEach(x=>{if(k===d||!x.done)tasks.push({...x,day:k})})});
 document.getElementById("todoList").innerHTML=tasks.map(x=>'<div class="item"><input type="checkbox" '+(x.done?'checked ':'')+'onchange="changeTodo(\''+x.day+'\','+x.id+',\'done\')"><span>'+safeExtra(x.name)+'</span><button onclick="changeTodo(\''+x.day+'\','+x.id+',\'edit\')">✎</button><button onclick="changeTodo(\''+x.day+'\','+x.id+',\'delete\')">×</button></div>').join("");
 }
 const previousLoadDay=loadDay;loadDay=function(){previousLoadDay();renderExtra()};renderExtra();
 
+
+const FINKEY="az-finance-test-v1",SAVEKEY="az-savings-test-v1";
+function eur(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"})}
+function addFinance(){const n=document.getElementById("financeName"),a=document.getElementById("financeAmount"),amount=Number(a.value);if(!n.value.trim()||!Number.isFinite(amount)||amount<=0)return alert("Bitte Beschreibung und positiven Betrag eingeben.");const data=readExtra(FINKEY);(data.entries ||= []).push({id:Date.now(),name:n.value.trim(),amount,type:document.getElementById("financeType").value});saveExtra(FINKEY,data);n.value="";a.value="";renderFinance()}
+function deleteFinance(id){const data=readExtra(FINKEY);data.entries=(data.entries||[]).filter(x=>x.id!==id);saveExtra(FINKEY,data);renderFinance()}
+function renderFinance(){const entries=readExtra(FINKEY).entries||[],income=entries.filter(x=>x.type==="Einnahme").reduce((s,x)=>s+x.amount,0),out=entries.filter(x=>x.type==="Ausgabe").reduce((s,x)=>s+x.amount,0);document.getElementById("financeSummary").innerHTML='<div class="summary-total">Einnahmen: '+eur(income)+' · Ausgaben: '+eur(out)+'</div><div class="summary-total">Saldo: '+eur(income-out)+'</div>';document.getElementById("financeList").innerHTML=entries.map(x=>'<div class="item"><span>'+safeExtra(x.name)+' · '+safeExtra(x.type)+' · '+eur(x.amount)+'</span><button onclick="deleteFinance('+x.id+')">×</button></div>').join("")}
+function addSaving(){const n=document.getElementById("savingName"),a=document.getElementById("savingAmount"),amount=Number(a.value),account=Number(document.getElementById("savingAccount").value);if(!n.value.trim()||!a.value||!Number.isFinite(amount)||amount===0)return alert("Bitte Beschreibung und Betrag eingeben.");const data=readExtra(SAVEKEY);(data.entries ||= []).push({id:Date.now(),account,name:n.value.trim(),amount});saveExtra(SAVEKEY,data);n.value="";a.value="";renderSavings()}
+function deleteSaving(id){const data=readExtra(SAVEKEY);data.entries=(data.entries||[]).filter(x=>x.id!==id);saveExtra(SAVEKEY,data);renderSavings()}
+function renderSavings(){const entries=readExtra(SAVEKEY).entries||[];document.getElementById("savingsList").innerHTML=[0,1].map(i=>{const e=entries.filter(x=>x.account===i);return '<h2>🏦 Sparbuch '+(i+1)+'</h2><div class="summary-total">Stand: '+eur(e.reduce((s,x)=>s+x.amount,0))+'</div>'+e.map(x=>'<div class="item"><span>'+safeExtra(x.name)+' · '+eur(x.amount)+'</span><button onclick="deleteSaving('+x.id+')">×</button></div>').join("")}).join("")}
+renderFinance();renderSavings();
 </script>
 </body>
 </html>
