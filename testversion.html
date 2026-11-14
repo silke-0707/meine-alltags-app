@@ -165,6 +165,9 @@ label {display:block;margin-top:14px}
   background:#51435a80;
 }
 .menu-overlay.open {display:block}
+.menu-overlay {background:rgba(65,55,80,.45);padding:12px;overflow:auto}
+.menu-overlay .menu {position:relative;z-index:1001;display:block!important;visibility:visible!important;opacity:1!important;background:#f3eff9!important;color:#655778!important;border-radius:20px;height:auto;max-height:90vh;overflow-y:auto;margin:10px auto;padding:18px;box-shadow:0 12px 40px #4c3e5960}
+.menu-overlay .menu-item {display:block!important;visibility:visible!important;opacity:1!important;color:#655778!important;background:white!important}
 .menu {
   width:min(340px,88vw);
   height:100%;
@@ -275,7 +278,7 @@ footer {
 </svg>
 
 <header>
-  <button class="menu-button" onclick="openMenu()">☰ Menü</button><select aria-label="Bereich auswählen" onchange="if(this.value){showPage(this.value);this.value=''}" style="position:absolute;right:12px;top:66px;z-index:12;width:155px;padding:7px"><option value="">Bereich wählen</option><option value="kalender">Kalender</option><option value="finanzen">Finanzen</option><option value="sparen">Sparbücher</option><option value="gewicht">Gewicht</option><option value="notizen">Notizen</option></select>
+  <button class="menu-button" type="button" onclick="openMenu()">☰ Menü</button><select aria-label="Bereich auswählen" onchange="if(this.value){showPage(this.value);this.value=''}" style="position:absolute;right:12px;top:66px;z-index:12;width:155px;padding:7px"><option value="">Bereich wählen</option><option value="kalender">Kalender</option><option value="finanzen">Finanzen</option><option value="sparen">Sparbücher</option><option value="gewicht">Gewicht</option><option value="notizen">Notizen</option></select>
   <svg class="calla" viewBox="0 0 150 210"
        aria-label="Weiße Calla in Aquarelloptik">
     <use href="#callaArt"/>
@@ -361,10 +364,9 @@ footer {
       <div id="eventList"></div>
       <button class="small-button" onclick="document.getElementById('eventForm').classList.toggle('hidden')">＋ Hinzufügen</button>
       <div id="eventForm" class="hidden"><label>Bezeichnung<input id="eventName" placeholder="Was steht an?"></label><label>Datum<input id="eventDate" type="date"></label><label>Uhrzeit (optional)<input id="eventTime" type="time"></label><label><input type="checkbox" id="eventBirthday" style="width:auto"> Geburtstag</label><input id="eventYear" type="number" placeholder="Geburtsjahr (optional)"><button class="small-button" onclick="addEvent()">Speichern</button><button class="small-button" onclick="cancelEventEdit()">Abbrechen</button></div>
-      <div class="hidden">
-      <textarea id="reminders"
+      <details style="margin-top:12px;padding:10px"><summary>📝 Ältere Kalendereinträge bearbeiten</summary><p class="note">Hier kannst du deine früheren Einträge weiterhin ändern.</p><textarea id="reminders"
         placeholder="Meine Termine und Erinnerungen ..."
-        oninput="saveDay()"></textarea></div>
+        oninput="saveDay()"></textarea></details>
     </details>
 
     <details>
@@ -375,8 +377,8 @@ footer {
         oninput="saveDay()"></textarea></div>
     </details>
 
-    <details class="hidden">
-      <summary>🎂 Geburtstage</summary>
+    <details>
+      <summary>🎂 Ältere Geburtstagseinträge bearbeiten</summary>
       <textarea id="birthdays"
         placeholder="Wen möchte ich heute feiern?"
         oninput="saveDay()"></textarea>
