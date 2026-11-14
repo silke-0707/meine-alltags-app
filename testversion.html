@@ -335,9 +335,9 @@ footer {
       <div id="eventList"></div>
       <button class="small-button" onclick="document.getElementById('eventForm').classList.toggle('hidden')">＋ Hinzufügen</button>
       <div id="eventForm" class="hidden"><label>Bezeichnung<input id="eventName" placeholder="Was steht an?"></label><label>Datum<input id="eventDate" type="date"></label><label>Uhrzeit (optional)<input id="eventTime" type="time"></label><label><input type="checkbox" id="eventBirthday" style="width:auto"> Geburtstag</label><input id="eventYear" type="number" placeholder="Geburtsjahr (optional)"><button class="small-button" onclick="addEvent()">Speichern</button><button class="small-button" onclick="cancelEventEdit()">Abbrechen</button></div>
-      <details style="margin-top:12px;padding:10px"><summary>📝 Ältere Kalendereinträge bearbeiten</summary><p class="note">Hier kannst du deine früheren Einträge weiterhin ändern.</p><textarea id="reminders"
+      <div class="hidden" aria-hidden="true"><textarea id="reminders"
         placeholder="Meine Termine und Erinnerungen ..."
-        oninput="saveDay()"></textarea></details>
+        oninput="saveDay()"></textarea></div>
     </details>
 
     <details>
