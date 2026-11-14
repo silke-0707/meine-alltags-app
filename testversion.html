@@ -307,13 +307,28 @@ footer {
       </div>
     </section>
 
-    <section class="panel">
-      <h2>💜 Wie fühle ich mich heute?</h2>
-      <div class="emoji-row" id="moodButtons"></div>
-    </section>
+        <details class="hidden">
+      <summary>🎂 Ältere Geburtstagseinträge bearbeiten</summary>
+      <textarea id="birthdays"
+        placeholder="Wen möchte ich heute feiern?"
+        oninput="saveDay()"></textarea>
+    </details>
 
-    <details>
-      <summary>🌤️ Mein Wetter</summary>
+  </div>
+
+<section class="areas-section" id="bereiche"><h2>🌸 Meine Bereiche</h2><p class="areas-intro">Mein Tag, meine Gedanken und alles, was mir wichtig ist.</p><div class="area-grid">
+<button class="area-tile" onclick="showPage('stimmung')">💜 <strong>Meine Stimmung</strong><small>Wie fühle ich mich heute?</small></button>
+<button class="area-tile" onclick="showPage('wetter')">🌤️ <strong>Mein Wetter</strong><small>Wetter und Temperaturen</small></button>
+<button class="area-tile" onclick="showPage('termine')">📅 <strong>Mein Kalender</strong><small>Termine und Geburtstage</small></button>
+<button class="area-tile" onclick="showPage('todos')">✅ <strong>Meine To-dos</strong><small>Was steht heute an?</small></button>
+<button class="area-tile" onclick="showPage('tagebuch')">📖 <strong>Mein Tagebuch</strong><small>Gedanken und Erinnerungen</small></button>
+<button class="area-tile" onclick="showPage('finanzen')">💜 <strong>Meine Finanzen</strong><small>Einnahmen und Ausgaben</small></button>
+<button class="area-tile" onclick="showPage('sparen')">🏦 <strong>Meine Sparbücher</strong><small>Beide Sparkonten</small></button>
+<button class="area-tile" onclick="showPage('gewicht')">⚖️ <strong>Mein Wohlfühlweg</strong><small>Gewichtsentwicklung</small></button>
+<button class="area-tile" onclick="showPage('notizen')">📝 <strong>Meine Notizen</strong><small>Ideen und Gedanken</small></button>
+</div></section>
+<section id="stimmung" class="panel hidden feature-page"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button><h2>💜 Wie fühle ich mich heute?</h2><div class="emoji-row" id="moodButtons"></div></section>
+<section id="wetter" class="panel hidden feature-page"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button><h2>🌤️ Mein Wetter</h2>
       <div class="emoji-row" id="weatherButtons"></div>
       <div class="temp-row">
         <label>☀️ Tagsüber
@@ -328,50 +343,28 @@ footer {
       <p class="note">
         Die automatische Wettervorhersage ergänzen wir später.
       </p>
-    </details>
-
-    <details>
-      <summary>📅 Mein Kalender</summary>
+    </section>
+<section id="termine" class="panel hidden feature-page"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button><h2>📅 Mein Kalender</h2>
       <div id="eventList"></div>
       <button class="small-button" onclick="document.getElementById('eventForm').classList.toggle('hidden')">＋ Hinzufügen</button>
       <div id="eventForm" class="hidden"><label>Bezeichnung<input id="eventName" placeholder="Was steht an?"></label><label>Datum<input id="eventDate" type="date"></label><label>Uhrzeit (optional)<input id="eventTime" type="time"></label><label><input type="checkbox" id="eventBirthday" style="width:auto"> Geburtstag</label><input id="eventYear" type="number" placeholder="Geburtsjahr (optional)"><button class="small-button" onclick="addEvent()">Speichern</button><button class="small-button" onclick="cancelEventEdit()">Abbrechen</button></div>
       <div class="hidden" aria-hidden="true"><textarea id="reminders"
         placeholder="Meine Termine und Erinnerungen ..."
         oninput="saveDay()"></textarea></div>
-    </details>
-
-    <details>
-      <summary>✅ Meine To-dos</summary>
+    </section>
+<section id="todos" class="panel hidden feature-page"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button><h2>✅ Meine To-dos</h2>
       <div id="todoList"></div><button class="small-button" onclick="document.getElementById('todoForm').classList.toggle('hidden')">＋ Hinzufügen</button><div id="todoForm" class="hidden"><input id="todoName" placeholder="Neue Aufgabe"><button class="small-button" onclick="addTodo()">Speichern</button></div><div class="hidden">
       <textarea id="tasks"
         placeholder="Was möchte ich erledigen?"
         oninput="saveDay()"></textarea></div>
-    </details>
-
-    <details class="hidden">
-      <summary>🎂 Ältere Geburtstagseinträge bearbeiten</summary>
-      <textarea id="birthdays"
-        placeholder="Wen möchte ich heute feiern?"
-        oninput="saveDay()"></textarea>
-    </details>
-
-    <details>
-      <summary>📖 Mein Tagebuch</summary>
+    </section>
+<section id="tagebuch" class="panel hidden feature-page"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button><h2>📖 Mein Tagebuch</h2>
       <textarea id="diary"
         placeholder="Was hat meinen Tag besonders gemacht?"
         style="min-height:180px"
         oninput="saveDay()"></textarea>
-    </details>
-  </div>
+    </section>
 
-<section class="areas-section" id="bereiche"><h2>🌸 Meine Bereiche</h2><p class="areas-intro">Alles, was meinen Alltag ein bisschen schöner und leichter macht.</p><div class="area-grid">
-<button class="area-tile" onclick="showPage('finanzen')">💜 <strong>Meine Finanzen</strong><small>Einnahmen und Ausgaben</small></button>
-<button class="area-tile" onclick="showPage('sparen')">🏦 <strong>Meine Sparbücher</strong><small>Beide Sparkonten</small></button>
-<button class="area-tile" onclick="showPage('gewicht')">⚖️ <strong>Mein Wohlfühlweg</strong><small>Gewichtsentwicklung</small></button>
-<button class="area-tile" onclick="showPage('notizen')">📝 <strong>Meine Notizen</strong><small>Ideen und Gedanken</small></button>
-<button class="area-tile" onclick="showPage('todos')">✅ <strong>Meine To-dos</strong><small>Aufgaben</small></button>
-<button class="area-tile" onclick="showDiary()">📖 <strong>Mein Tagebuch</strong><small>Meine Erinnerungen</small></button>
-</div></section>
   <section id="finanzen" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button>
     <h2>💜 Meine Finanzen</h2>
     <p>Meine Einnahmen und Ausgaben</p>
@@ -397,22 +390,9 @@ footer {
        deine Ziele und dein grafischer Verlauf.</p>
   </section>
 
-  <section id="todos" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button>
-    <h2>✅ Meine To-dos</h2>
-    <p>Deine täglichen To-dos findest du im Tageskalender.</p>
-    <button class="small-button" onclick="showPage('kalender')">
-      Zum Tageskalender
-    </button>
-  </section>
 
-  <section id="wetter" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button>
-    <h2>🌤️ Mein Wetter</h2>
-    <p>Deine Wetterübersicht findest du im Tageskalender.</p>
-    <p>Die automatische Vorhersage ergänzen wir später.</p>
-    <button class="small-button" onclick="showPage('kalender')">
-      Zum Tageskalender
-    </button>
-  </section>
+
+
 
   <section id="notizen" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button>
     <h2>📝 Meine Notizen</h2>
@@ -452,8 +432,8 @@ function dateKey(){
 function storageKey(){
   return "alltagszauber-v3-"+dateKey();
 }
-function showPage(page){["kalender","finanzen","sparen","gewicht","todos","wetter","notizen"].forEach(id=>document.getElementById(id).classList.toggle("hidden",id!==page));document.getElementById("bereiche").classList.toggle("hidden",page!=="kalender");window.scrollTo(0,0)}
-function showDiary(){showPage("kalender");const d=document.querySelector("#kalender details:last-of-type");if(d){d.open=true;d.scrollIntoView({behavior:"smooth",block:"center"})}}
+function showPage(page){["kalender","stimmung","termine","tagebuch","finanzen","sparen","gewicht","todos","wetter","notizen"].forEach(id=>document.getElementById(id).classList.toggle("hidden",id!==page));document.getElementById("bereiche").classList.toggle("hidden",page!=="kalender");window.scrollTo(0,0)}
+function showDiary(){showPage("tagebuch")}
 function changeDay(days){
   currentDate.setDate(currentDate.getDate()+days);
   loadDay();
