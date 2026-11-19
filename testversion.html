@@ -239,6 +239,7 @@ footer {
 .note-cards{display:grid;gap:12px}.note-card{border:1px solid #ded5eb;background:linear-gradient(125deg,#f9f5ff,#f0faf8);border-radius:17px;padding:14px 15px}.note-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;color:#655778}.note-card-top strong{font-family:Georgia,serif;font-size:17px;font-weight:normal}.note-card-actions{display:flex;gap:5px}.note-card-actions button{border:0;background:transparent;color:#81738f;padding:3px 7px;cursor:pointer}.note-card p{white-space:normal;overflow-wrap:anywhere;margin:9px 0 0;line-height:1.55;font-size:14px}.note-empty{color:#80768a;text-align:center;padding:22px 6px}.note-form{margin-top:15px}.note-actions{display:flex;align-items:center;gap:10px;margin-top:10px}
 .note-card.note-tone-0{background:#f1eafa;border-color:#e3d5f0}.note-card.note-tone-1{background:#e8f6f3;border-color:#d2ebe6}.note-card.note-tone-2{background:#f1f0fa;border-color:#dfddef}.note-card.note-tone-3{background:#eaf4f8;border-color:#d5e7ed}
 .diary-intro{text-align:center;margin:5px 0 20px}.diary-date{font-family:Georgia,serif;font-size:17px;color:#6d6081}.diary-intro p{font-family:Georgia,serif;font-style:italic;font-size:14px;color:#8a7d98;margin:8px 0 0}.diary-writing{min-height:260px!important;line-height:1.75;background:linear-gradient(145deg,#fbf9ff,#f1faf8);border:1px solid #ded7ea;border-radius:18px;padding:17px!important;resize:vertical}.diary-save-hint{text-align:right;font-size:11px;color:#8b8494;margin:7px 3px 0}
+.diary-photo-area{margin-top:14px}.diary-photo-area .add-action{margin-top:6px}#diaryPhotoPreview{text-align:center}#diaryPhotoPreview img{display:block;width:auto;max-width:100%;max-height:360px;object-fit:contain;margin:8px auto 12px;border-radius:15px;border:1px solid #e3dbea}#diaryPhotoPreview button{margin:0 auto}
 </style>
 </head>
 <body>
@@ -379,6 +380,11 @@ footer {
         placeholder="Was hat meinen Tag besonders gemacht?\n\nWas möchte ich in Erinnerung behalten?"
         oninput="saveDay()"></textarea>
       <p class="diary-save-hint">Deine Gedanken werden automatisch gespeichert.</p>
+      <div class="diary-photo-area">
+        <input id="diaryPhotoInput" type="file" accept="image/*" class="hidden" onchange="addDiaryPhoto(this)">
+        <div id="diaryPhotoPreview" class="hidden"></div>
+        <div class="add-action"><button class="subtle-add-button" id="diaryPhotoAdd" onclick="document.getElementById('diaryPhotoInput').click()">＋ Foto hinzufügen</button></div>
+      </div>
     <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
 </section>
 
@@ -535,7 +541,49 @@ function loadDay(){
       document.getElementById(id).value=data[id]||"";
     });
   renderEmojis();
+  renderDiaryPhoto();
 }
+
+const DIARY_PHOTO_PREFIX="alltagszauber-v3-diary-photo-";
+function renderDiaryPhoto(){
+  const preview=document.getElementById("diaryPhotoPreview"),button=document.getElementById("diaryPhotoAdd");
+  let data=null;try{data=localStorage.getItem(DIARY_PHOTO_PREFIX+dateKey())}catch(e){}
+  preview.replaceChildren();
+  if(data){
+    const img=document.createElement("img");img.src=data;img.alt="Mein Tagebuchfoto";
+    const remove=document.createElement("button");remove.className="subtle-add-button";remove.textContent="Foto entfernen";remove.onclick=removeDiaryPhoto;
+    preview.append(img,remove);preview.classList.remove("hidden");button.textContent="Foto ändern";
+  }else{preview.classList.add("hidden");button.textContent="＋ Foto hinzufügen"}
+}
+function removeDiaryPhoto(){
+  if(!confirm("Möchtest du das Foto aus diesem Tagebucheintrag entfernen?"))return;
+  try{localStorage.removeItem(DIARY_PHOTO_PREFIX+dateKey());renderDiaryPhoto()}catch(e){alert("Das Foto konnte nicht entfernt werden.")}
+}
+function addDiaryPhoto(input){
+  const file=input.files&&input.files[0],targetDay=dateKey();input.value="";
+  if(!file)return;
+  if(!file.type.startsWith("image/")){alert("Bitte wähle ein Foto aus.");return}
+  const reader=new FileReader();
+  reader.onerror=()=>alert("Das Foto konnte nicht geöffnet werden.");
+  reader.onload=()=>{
+    const img=new Image();
+    img.onerror=()=>alert("Das Foto konnte nicht verarbeitet werden.");
+    img.onload=()=>{
+      const scale=Math.min(1,1200/Math.max(img.width,img.height));
+      const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+      const ctx=canvas.getContext("2d");if(!ctx){alert("Das Foto konnte nicht verarbeitet werden.");return}
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      try{
+        const photo=canvas.toDataURL("image/jpeg",0.72);
+        localStorage.setItem(DIARY_PHOTO_PREFIX+targetDay,photo);
+        if(dateKey()===targetDay)renderDiaryPhoto();
+      }catch(e){alert("Für dieses Foto reicht der verfügbare Speicher leider nicht aus. Dein Tagebucheintrag bleibt erhalten.")}
+    };
+    img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 const NOTEKEY="alltagszauber-v3-note-cards";
 let editingNoteId=null;
 function getNoteCards(){try{const data=JSON.parse(localStorage.getItem(NOTEKEY)||"[]");return Array.isArray(data)?data:[]}catch(e){return []}}
