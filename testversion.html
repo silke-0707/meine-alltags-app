@@ -237,6 +237,7 @@ footer {
 .feature-heading{font-family:Georgia,serif;font-size:24px;font-weight:normal;text-align:center;color:#655778;letter-spacing:.3px;margin:8px 0 24px;padding-bottom:15px;position:relative}.feature-heading::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:90px;height:2px;border-radius:4px;background:linear-gradient(90deg,#d9c5e9,#bde8e0,#d9c5e9)}
 .add-action{display:flex;justify-content:flex-end;margin:12px 0 4px}.subtle-add-button{font:inherit;font-size:12px;color:#756986;background:#ffffff70;border:1px solid #dfd6e7;border-radius:18px;padding:6px 11px;cursor:pointer}.subtle-add-button:active{background:#e9ddf4}
 .note-cards{display:grid;gap:12px}.note-card{border:1px solid #ded5eb;background:linear-gradient(125deg,#f9f5ff,#f0faf8);border-radius:17px;padding:14px 15px}.note-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;color:#655778}.note-card-top strong{font-family:Georgia,serif;font-size:17px;font-weight:normal}.note-card-actions{display:flex;gap:5px}.note-card-actions button{border:0;background:transparent;color:#81738f;padding:3px 7px;cursor:pointer}.note-card p{white-space:normal;overflow-wrap:anywhere;margin:9px 0 0;line-height:1.55;font-size:14px}.note-empty{color:#80768a;text-align:center;padding:22px 6px}.note-form{margin-top:15px}.note-actions{display:flex;align-items:center;gap:10px;margin-top:10px}
+.note-card.note-tone-0{background:#f1eafa;border-color:#e3d5f0}.note-card.note-tone-1{background:#e8f6f3;border-color:#d2ebe6}.note-card.note-tone-2{background:#f1f0fa;border-color:#dfddef}.note-card.note-tone-3{background:#eaf4f8;border-color:#d5e7ed}
 </style>
 </head>
 <body>
@@ -543,7 +544,7 @@ function initializeNoteCards(){
 }
 function renderNoteCards(){
   const cards=getNoteCards(),container=document.getElementById("noteCards");
-  container.innerHTML=cards.length?cards.map(n=>'<article class="note-card"><div class="note-card-top"><strong>'+safeExtra(n.title||"Ohne Überschrift")+'</strong><div class="note-card-actions"><button aria-label="Notiz bearbeiten" onclick="openNoteForm('+n.id+')">✎</button><button aria-label="Notiz löschen" onclick="deleteNoteCard('+n.id+')">×</button></div></div><p>'+safeExtra(n.body).replace(/\n/g,"<br>")+'</p></article>').join(""):'<p class="note-empty">Hier ist Platz für deine Gedanken und Ideen.</p>';
+  container.innerHTML=cards.length?cards.map((n,i)=>'<article class="note-card note-tone-'+(i%4)+'"><div class="note-card-top"><strong>'+safeExtra(n.title||"Ohne Überschrift")+'</strong><div class="note-card-actions"><button aria-label="Notiz bearbeiten" onclick="openNoteForm('+n.id+')">✎</button><button aria-label="Notiz löschen" onclick="deleteNoteCard('+n.id+')">×</button></div></div><p>'+safeExtra(n.body).replace(/\n/g,"<br>")+'</p></article>').join(""):'<p class="note-empty">Hier ist Platz für deine Gedanken und Ideen.</p>';
 }
 function openNoteForm(id){
   editingNoteId=id==null?null:id;
