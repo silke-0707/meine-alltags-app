@@ -1,0 +1,714 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mein kleiner Alltagszauber – Testversion</title>
+<style>
+:root {
+  --ink:#655778;
+  --lavender:#e9ddf4;
+  --mint:#dff4ef;
+  --white:#ffffff;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  min-height:100vh;
+  font-family:Arial,sans-serif;
+  color:var(--ink);
+  background:linear-gradient(150deg,#f7f0fa 0%,#e8f8f5 52%,#f4ecfa 100%);
+}
+body::before {
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.35;
+  background:
+    radial-gradient(ellipse at 95% 18%,#d6c5e8 0%,transparent 23%),
+    radial-gradient(ellipse at 2% 76%,#c9eae0 0%,transparent 26%);
+}
+header {
+  position:relative;
+  text-align:center;
+  padding:24px 16px 20px;
+}
+h1 {
+  font-family:Georgia,serif;
+  font-size:29px;
+  font-style:italic;
+  font-weight:normal;
+  margin:0 0 8px;
+}
+h2 {font-size:19px;font-weight:normal}
+.subtitle {font-size:13px;opacity:.75}
+.calla {
+  display:block;
+  width:175px;
+  height:195px;
+  margin:0 auto -5px;
+  filter:drop-shadow(0 5px 10px #9a83b033);
+}
+.menu-button {
+  position:absolute;
+  right:16px;
+  top:17px;
+  border:0;
+  border-radius:20px;
+  background:#ffffffd9;
+  padding:11px 14px;
+  color:var(--ink);
+  box-shadow:0 3px 15px #8c799025;
+}
+main {
+  position:relative;
+  max-width:720px;
+  margin:auto;
+  padding:0 16px 32px;
+}
+.panel,details {
+  background:#ffffffa8;
+  backdrop-filter:blur(7px);
+  border:1px solid #ffffffbb;
+  border-radius:26px;
+  padding:19px;
+  margin:13px 0;
+  box-shadow:0 6px 24px #8c7c9d12;
+}
+details:nth-of-type(even) {
+  background:#f0e9f6b5;
+}
+details:nth-of-type(odd) {
+  background:#eaf7f4b5;
+}
+summary {
+  cursor:pointer;
+  font-weight:600;
+  padding:3px 0;
+}
+button {font:inherit;cursor:pointer}
+.arrow,.small-button {
+  border:0;
+  background:var(--lavender);
+  color:var(--ink);
+  border-radius:15px;
+  padding:10px 14px;
+}
+.date-nav {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.date-title {
+  font-family:Georgia,serif;
+  font-size:18px;
+  text-align:center;
+}
+.quote {
+  text-align:center;
+  font-family:Georgia,serif;
+  font-style:italic;
+  line-height:1.5;
+  margin:20px 0;
+}
+.emoji-row {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  margin-top:12px;
+  width:100%;
+}
+.emoji {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+  min-width:0;
+  height:53px;
+  background:#f3ecf8;
+  border:2px solid transparent;
+  border-radius:15px;
+  padding:0;
+  font-size:23px;
+}
+.emoji.active {
+  background:#e1d0f1;
+  border-color:#987bb5;
+}
+input,textarea {
+  width:100%;
+  font:inherit;
+  color:var(--ink);
+  padding:12px;
+  margin-top:8px;
+  border:1px solid #e0d8e7;
+  border-radius:15px;
+  background:#ffffffd9;
+}
+textarea {
+  min-height:110px;
+  resize:vertical;
+}
+label {display:block;margin-top:14px}
+.temp-row {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.note {
+  font-size:13px;
+  line-height:1.5;
+  opacity:.8;
+}
+.hidden {display:none!important}
+.menu-overlay {
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:20;
+  background:#51435a80;
+}
+.menu-overlay.open {display:block}
+.menu-overlay {background:rgba(65,55,80,.45);padding:12px;overflow:auto}
+.menu-overlay .menu {position:relative;z-index:1001;display:block!important;visibility:visible!important;opacity:1!important;background:#f3eff9!important;color:#655778!important;border-radius:20px;height:auto;max-height:90vh;overflow-y:auto;margin:10px auto;padding:18px;box-shadow:0 12px 40px #4c3e5960}
+.menu-overlay .menu-item {display:block!important;visibility:visible!important;opacity:1!important;color:#655778!important;background:white!important}
+.menu {
+  width:min(340px,88vw);
+  height:100%;
+  overflow:auto;
+  padding:25px 18px;
+  background:linear-gradient(#f5ecfa,#e4f7f2);
+  box-shadow:5px 0 24px #40344735;
+}
+.menu-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.menu-item {
+  display:block;
+  width:100%;
+  text-align:left;
+  border:0;
+  border-radius:19px;
+  margin:10px 0;
+  padding:17px;
+  background:#ffffffd6;
+  color:var(--ink);
+}
+.menu-item span {
+  display:block;
+  font-size:12px;
+  opacity:.7;
+  margin-top:5px;
+}
+footer {
+  position:relative;
+  text-align:center;
+  padding:20px;
+  font-family:Georgia,serif;
+  font-style:italic;
+  font-size:13px;
+  opacity:.75;
+}
+.floral-bg {
+  position:fixed;
+  pointer-events:none;
+  z-index:0;
+  opacity:.13;
+  width:180px;
+  height:250px;
+}
+.floral-left {
+  left:-75px;
+  top:45%;
+  transform:rotate(-25deg);
+}
+.floral-right {
+  right:-80px;
+  top:10%;
+  transform:rotate(25deg);
+}
+.item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #ddd}.item span{flex:1}.item button{border:0;background:transparent;color:#655778}.item input[type=checkbox]{width:auto;margin:0}select{width:100%;font:inherit;color:var(--ink);padding:12px;margin-top:8px;border:1px solid #e0d8e7;border-radius:15px;background:#ffffffd9}.summary-total{padding:10px 0;font-weight:bold}.areas-section{margin:24px 0 8px;padding:20px 12px 12px;border-radius:28px;background:linear-gradient(155deg,#f0e9f7c2,#e8f8f4ba);border:1px solid #ffffffc9;box-shadow:0 6px 24px #8c7c9d12}.areas-section h2{font-family:Georgia,serif;text-align:center;margin:4px 0 8px;font-size:21px}.areas-intro{text-align:center;font-size:13px;line-height:1.5;opacity:.8;margin:0 8px 18px}.area-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.area-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:120px;border:1px solid #ffffffdb;border-radius:24px;padding:16px 8px;background:linear-gradient(145deg,#ffffffd9,#f0e7f8bb 55%,#e2f6f1b8);color:#655778;text-align:center;font-size:25px;box-shadow:0 5px 14px #8c7c9d14;transition:transform .15s}.area-tile:active{transform:scale(.98)}.area-tile strong{display:block;font-family:Georgia,serif;font-size:16px;font-weight:normal;margin:8px 0 5px}.area-tile small{display:block;font-size:12px;line-height:1.4;opacity:.8}
+@media(max-width:420px){.areas-section{padding:16px 10px 12px}.area-grid{gap:10px}.area-tile{min-height:112px;padding:13px 6px;border-radius:20px}.area-tile strong{font-size:15px}.area-tile small{font-size:11px}}.event-time{display:inline-block;min-width:74px;font-weight:700;color:#655778}.date-options{margin:10px auto 8px;text-align:center;max-width:330px}.date-options summary{display:inline-block;cursor:pointer;list-style:none;font-size:12px;color:var(--ink);opacity:.75;padding:7px 13px;border-radius:20px;background:#ffffffa8;border:1px solid #e9dfed}.date-options summary::-webkit-details-marker{display:none}.date-options[open] summary{opacity:1}.date-options-content{margin-top:10px;padding:12px;border-radius:18px;background:#ffffffa6;border:1px solid #e9dfed}.date-jump{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 0 12px}.date-jump .small-button{font-size:12px;padding:9px 8px;margin:0}.date-pick{text-align:center}.date-pick label{display:block;font-size:12px}.date-pick input{display:block;width:100%;max-width:220px;margin:7px auto 0;padding:7px;border-radius:12px;border:1px solid #d7c9e3;color:var(--ink);background:#fff}.back-bottom{display:flex;justify-content:flex-end;margin-top:24px}.todo-text{flex:1;cursor:pointer;line-height:1.5;padding:5px 0}.todo-text:active{opacity:.7}
+.feature-heading{font-family:Georgia,serif;font-size:24px;font-weight:normal;text-align:center;color:#655778;letter-spacing:.3px;margin:8px 0 24px;padding-bottom:15px;position:relative}.feature-heading::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:90px;height:2px;border-radius:4px;background:linear-gradient(90deg,#d9c5e9,#bde8e0,#d9c5e9)}
+.add-action{display:flex;justify-content:flex-end;margin:12px 0 4px}.subtle-add-button{font:inherit;font-size:12px;color:#756986;background:#ffffff70;border:1px solid #dfd6e7;border-radius:18px;padding:6px 11px;cursor:pointer}.subtle-add-button:active{background:#e9ddf4}
+.note-cards{display:grid;gap:12px}.note-card{border:1px solid #ded5eb;background:linear-gradient(125deg,#f9f5ff,#f0faf8);border-radius:17px;padding:14px 15px}.note-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;color:#655778}.note-card-top strong{font-family:Georgia,serif;font-size:17px;font-weight:normal}.note-card-actions{display:flex;gap:5px}.note-card-actions button{border:0;background:transparent;color:#81738f;padding:3px 7px;cursor:pointer}.note-card p{white-space:normal;overflow-wrap:anywhere;margin:9px 0 0;line-height:1.55;font-size:14px}.note-empty{color:#80768a;text-align:center;padding:22px 6px}.note-form{margin-top:15px}.note-actions{display:flex;align-items:center;gap:10px;margin-top:10px}
+.note-card.note-tone-0{background:#f1eafa;border-color:#e3d5f0}.note-card.note-tone-1{background:#e8f6f3;border-color:#d2ebe6}.note-card.note-tone-2{background:#f1f0fa;border-color:#dfddef}.note-card.note-tone-3{background:#eaf4f8;border-color:#d5e7ed}
+.diary-intro{text-align:center;margin:5px 0 20px}.diary-date{font-family:Georgia,serif;font-size:17px;color:#6d6081}.diary-intro p{font-family:Georgia,serif;font-style:italic;font-size:14px;color:#8a7d98;margin:8px 0 0}.diary-writing{min-height:260px!important;line-height:1.75;background:linear-gradient(145deg,#fbf9ff,#f1faf8);border:1px solid #ded7ea;border-radius:18px;padding:17px!important;resize:vertical}.diary-save-hint{text-align:right;font-size:11px;color:#8b8494;margin:7px 3px 0}
+.diary-photo-area{margin-top:14px}.diary-photo-area .add-action{margin-top:6px}#diaryPhotoPreview{text-align:center}#diaryPhotoPreview img{display:block;width:auto;max-width:100%;max-height:360px;object-fit:contain;margin:8px auto 12px;border-radius:15px;border:1px solid #e3dbea}#diaryPhotoPreview button{margin:0 auto}
+.choice-intro{text-align:center;font-family:Georgia,serif;font-style:italic;font-size:14px;color:#81738f;margin:3px 0 18px}#stimmung .emoji-row,#wetter .emoji-row{background:linear-gradient(130deg,#f6f0fb,#edf9f7);border:1px solid #e4ddeb;border-radius:18px;padding:15px 10px;margin-bottom:18px}#wetter .temp-row{background:#f7f9fb;border:1px solid #e2e9ee;border-radius:16px;padding:12px;margin:12px 0}#stimmung .back-bottom,#wetter .back-bottom{margin-top:26px}
+.weight-icon-action{background:transparent;border:0;box-shadow:none;color:#8d7a9e;font-size:16px;padding:5px 6px;min-width:27px;cursor:pointer}.weight-icon-action:active{color:#655778}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="watercolor" x="-25%" y="-25%" width="150%" height="150%">
+      <feTurbulence type="fractalNoise"
+        baseFrequency=".035" numOctaves="3"
+        seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic"
+        in2="noise" scale="3"/>
+    </filter>
+    <linearGradient id="petal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".5" stop-color="#f9f8ff"/>
+      <stop offset="1" stop-color="#d6c5e7"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b8dfc5"/>
+      <stop offset="1" stop-color="#619f7d"/>
+    </linearGradient>
+    <symbol id="callaArt" viewBox="0 0 150 210">
+      <path d="M68 205 Q65 134 89 62"
+        stroke="#7ca98b" stroke-width="5"
+        fill="none" stroke-linecap="round"/>
+      <path d="M69 171 Q30 166 22 125 Q58 130 69 171Z"
+        fill="url(#leaf)" opacity=".8"/>
+      <path d="M77 145 Q115 136 124 102 Q91 109 77 145Z"
+        fill="url(#leaf)" opacity=".7"/>
+      <path d="M88 93 Q33 91 37 38 Q44 12 86 9
+               Q128 18 117 65 Q108 90 88 93Z"
+        fill="url(#petal)" stroke="#d6c5df"
+        stroke-width="2" filter="url(#watercolor)"/>
+      <path d="M87 79 Q77 57 93 27"
+        stroke="#d7b05a" stroke-width="9"
+        fill="none" stroke-linecap="round"
+        opacity=".9"/>
+      <path d="M88 93 Q105 68 86 12"
+        fill="none" stroke="#e2d4ec"
+        stroke-width="2" opacity=".6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<svg class="floral-bg floral-left" viewBox="0 0 150 210">
+  <use href="#callaArt"/>
+</svg>
+<svg class="floral-bg floral-right" viewBox="0 0 150 210">
+  <use href="#callaArt"/>
+</svg>
+
+<header>
+  <svg class="calla" viewBox="0 0 150 210"
+       aria-label="Weiße Calla in Aquarelloptik">
+    <use href="#callaArt"/>
+  </svg>
+  <h1>Mein kleiner Alltagszauber</h1>
+  <div class="subtitle">Mein Tag · Meine Gedanken · Mein Leben</div>
+</header>
+
+<main>
+  <div id="kalender">
+    <section class="panel">
+      <div class="date-nav">
+        <button class="arrow" onclick="changeDay(-1)">❮</button>
+        <div id="dateTitle" class="date-title"></div>
+        <button class="arrow" onclick="changeDay(1)">❯</button>
+      </div>
+      <details class="date-options"><summary>▦ Datum auswählen</summary><div class="date-options-content">
+<div class="date-jump"><button class="small-button" onclick="changeMonth(-1)">◀ Monat</button><button class="small-button" onclick="changeMonth(1)">Monat ▶</button><button class="small-button" onclick="changeYear(-1)">◀ Jahr</button><button class="small-button" onclick="changeYear(1)">Jahr ▶</button></div>
+<div class="date-pick"><label>Direkt zum Datum <input id="jumpDate" type="date" onchange="jumpToDate(this.value)"></label></div>
+</div></details>
+<p class="quote" id="quote"></p>
+      <div style="text-align:center">
+        <button class="small-button" onclick="goToday()">Heute</button>
+      </div>
+    </section>
+
+        <details class="hidden">
+      <summary>🎂 Ältere Geburtstagseinträge bearbeiten</summary>
+      <textarea id="birthdays"
+        placeholder="Wen möchte ich heute feiern?"
+        oninput="saveDay()"></textarea>
+    </details>
+
+  </div>
+
+<section class="areas-section" id="bereiche"><h2>🌸 Meine Bereiche</h2><p class="areas-intro">Mein Tag, meine Gedanken und alles, was mir wichtig ist.</p><div class="area-grid">
+<button class="area-tile" onclick="showPage('stimmung')">💜 <strong>Meine Stimmung</strong><small>Wie fühle ich mich heute?</small></button>
+<button class="area-tile" onclick="showPage('wetter')">🌤️ <strong>Mein Wetter</strong><small>Wetter und Temperaturen</small></button>
+<button class="area-tile" onclick="showPage('termine')">📅 <strong>Mein Kalender</strong><small>Termine und Geburtstage</small></button>
+<button class="area-tile" onclick="showPage('todos')">✅ <strong>Meine To-dos</strong><small>Was steht heute an?</small></button>
+<button class="area-tile" onclick="showPage('tagebuch')">📖 <strong>Mein Tagebuch</strong><small>Gedanken und Erinnerungen</small></button>
+<button class="area-tile" onclick="showPage('notizen')">📝 <strong>Meine Notizen</strong><small>Ideen und Gedanken</small></button>
+<button class="area-tile" onclick="showPage('finanzen')">💰 <strong>Meine Finanzen</strong><small>Einnahmen und Ausgaben</small></button>
+<button class="area-tile" onclick="showPage('sparen')">🏦 <strong>Meine Sparbücher</strong><small>Beide Sparkonten</small></button>
+<button class="area-tile" style="grid-column:1 / -1" onclick="showPage('gewicht')">⚖️ <strong>Mein Wohlfühlweg</strong><small>Gewichtsentwicklung</small></button>
+</div></section>
+<section id="stimmung" class="panel hidden feature-page"><h2 class="feature-heading">Meine Stimmung</h2><p class="choice-intro">Wie fühle ich mich heute?</p><div class="emoji-row" id="moodButtons"></div><div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
+<section id="wetter" class="panel hidden feature-page"><h2 class="feature-heading">Mein Wetter</h2>
+      <p class="choice-intro">Wie ist das Wetter heute?</p>
+      <div class="emoji-row" id="weatherButtons"></div>
+      <div class="temp-row">
+        <label>☀️ Tagsüber
+          <input type="number" id="tempDay"
+                 placeholder="°C" oninput="saveDay()">
+        </label>
+        <label>🌙 Nachts
+          <input type="number" id="tempNight"
+                 placeholder="°C" oninput="saveDay()">
+        </label>
+      </div>
+      <p class="note">
+        Die automatische Wettervorhersage ergänzen wir später.
+      </p>
+    <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
+<section id="termine" class="panel hidden feature-page"><h2 class="feature-heading">Mein Kalender</h2>
+      <div id="eventList"></div>
+      <div class="add-action"><button class="subtle-add-button" onclick="document.getElementById('eventForm').classList.toggle('hidden')">＋ Hinzufügen</button></div>
+      <div id="eventForm" class="hidden"><label>Bezeichnung<input id="eventName" placeholder="Was steht an?"></label><label>Datum<input id="eventDate" type="date"></label><label>Uhrzeit (optional)<input id="eventTime" type="time"></label><label><input type="checkbox" id="eventBirthday" style="width:auto"> Geburtstag</label><input id="eventYear" type="number" placeholder="Geburtsjahr (optional)"><button class="small-button" onclick="addEvent()">Speichern</button><button class="small-button" onclick="cancelEventEdit()">Abbrechen</button></div>
+      <div class="hidden" aria-hidden="true"><textarea id="reminders"
+        placeholder="Meine Termine und Erinnerungen ..."
+        oninput="saveDay()"></textarea></div>
+    <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+    </section>
+<section id="todos" class="panel hidden feature-page"><h2 class="feature-heading">Meine To-dos</h2>
+      <div id="todoList"></div><div class="add-action"><button class="subtle-add-button" onclick="document.getElementById('todoForm').classList.toggle('hidden')">＋ Hinzufügen</button></div><div id="todoForm" class="hidden"><input id="todoName" placeholder="Neue Aufgabe"><button class="small-button" onclick="addTodo()">Speichern</button></div><div class="hidden">
+      <textarea id="tasks"
+        placeholder="Was möchte ich erledigen?"
+        oninput="saveDay()"></textarea></div>
+    <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+    </section>
+<section id="tagebuch" class="panel hidden feature-page"><h2 class="feature-heading">Mein Tagebuch</h2>
+      <div class="diary-intro"><div id="diaryDate" class="diary-date"></div><p>Ein kleiner Moment nur für mich</p></div>
+      <textarea id="diary" class="diary-writing"
+        placeholder="Was hat meinen Tag besonders gemacht?\n\nWas möchte ich in Erinnerung behalten?"
+        oninput="saveDay()"></textarea>
+      <p class="diary-save-hint">Deine Gedanken werden automatisch gespeichert.</p>
+      <div class="diary-photo-area">
+        <input id="diaryPhotoInput" type="file" accept="image/*" class="hidden" onchange="addDiaryPhoto(this)">
+        <div id="diaryPhotoPreview" class="hidden"></div>
+        <div class="add-action"><button class="subtle-add-button" id="diaryPhotoAdd" onclick="document.getElementById('diaryPhotoInput').click()">＋ Foto hinzufügen</button></div>
+      </div>
+    <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
+
+  <section id="finanzen" class="panel hidden">
+    <h2 class="feature-heading">Meine Finanzen</h2>
+    <p class="choice-intro" style="text-align:center">Meine Einnahmen und Ausgaben im Blick</p>
+    <div style="display:flex;align-items:center;justify-content:center;gap:15px;margin:18px 0"><button class="subtle-add-button" onclick="shiftFinanceMonth(-1)" aria-label="Vorheriger Monat">‹</button><strong id="financeMonthLabel" style="font-family:Georgia,serif;font-size:18px;min-width:155px;text-align:center"></strong><button class="subtle-add-button" onclick="shiftFinanceMonth(1)" aria-label="Nächster Monat">›</button></div>
+    <div id="financeSummary"></div><div id="financeChart"></div><div id="financeList"></div>
+    <label>Datum<input id="financeDate" type="date"></label>
+    <label>Art<select id="financeType"><option value="variable">Ausgabe · Variable Kosten</option><option value="fixed">Ausgabe · Fixkosten</option><option value="income">Einnahme</option></select></label>
+    <label>Beschreibung<input id="financeName" placeholder="z. B. Lebensmittel"></label>
+    <label>Betrag in €<input id="financeAmount" type="number" step="0.01" min="0" placeholder="0,00"></label>
+    <label>Wiederholung<select id="financeRepeat"><option value="none">Einmalig</option><option value="monthly">Monatlich</option><option value="quarterly">Vierteljährlich</option><option value="yearly">Jährlich</option></select></label>
+    <button class="small-button" onclick="addFinance()">Buchung hinzufügen</button>
+    <p class="note">Wiederkehrende Buchungen werden ab dem Startdatum automatisch in den passenden Monaten angezeigt. Sie müssen nicht erneut eingetragen werden.</p>
+    <p class="note">Die Daten werden vorerst nur in diesem Browser gespeichert. Bitte noch keine vertraulichen Finanzdaten eingeben.</p>
+  <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
+
+  <section id="sparen" class="panel hidden"><h2 class="feature-heading">Meine Sparbücher</h2>
+    <div id="savingsList"></div>
+    <label>Sparbuch<select id="savingAccount"><option value="0">Sparbuch 1</option><option value="1">Sparbuch 2</option></select></label>
+    <label>Bezeichnung<input id="savingName" placeholder="z. B. Einzahlung"></label>
+    <label>Betrag in € (Auszahlung mit Minus)<input id="savingAmount" type="number" step="0.01" placeholder="0,00"></label>
+    <button class="small-button" onclick="addSaving()">Buchung speichern</button>
+    <p class="note">Testversion: Bitte nur Beispieldaten verwenden.</p>
+  <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
+  <section id="gewicht" class="panel hidden">
+    <h2 class="feature-heading">Mein Wohlfühlweg</h2>
+    <p class="choice-intro" style="text-align:center">Schritt für Schritt – in meinem Tempo.</p>
+    <div id="weightSummary" style="text-align:center;margin:18px 0"></div>
+    <div id="weightChart" style="margin:16px 0"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <label>Datum<input type="date" id="weightDate"></label>
+      <label>Gewicht (kg)<input type="number" id="weightValue" min="1" max="500" step="0.1" inputmode="decimal" placeholder="z. B. 80,5"></label>
+    </div>
+    <label style="display:block;margin-top:12px">Notiz (optional)<textarea id="weightNote" rows="2" style="min-height:65px" placeholder="z. B. Beginn der Periode …"></textarea></label>
+    <div class="add-action"><button class="subtle-add-button" onclick="addWeight()">＋ Gewicht eintragen</button><button id="weightDeleteSelected" class="subtle-add-button hidden" onclick="deleteSelectedWeight()">Eintrag löschen</button></div>
+    <details style="margin:14px 0"><summary style="cursor:pointer">Mein Wunschgewicht (optional)</summary><label>Wunschgewicht in kg<input type="number" id="weightGoal" min="1" max="500" step="0.1" inputmode="decimal" onchange="saveWeightGoal()"></label></details>
+    <h3 style="font-family:Georgia,serif;font-weight:normal;text-align:center">Meine bisherigen Einträge</h3>
+    <div id="weightList"></div>
+    <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+  </section>
+
+
+
+
+
+  <section id="notizen" class="panel hidden">
+    <h2 class="feature-heading">Meine Notizen</h2>
+    <div id="noteCards" class="note-cards"></div>
+    <div class="add-action"><button class="subtle-add-button" onclick="openNoteForm()">＋ Hinzufügen</button></div>
+    <div id="noteForm" class="hidden note-form">
+      <label>Überschrift<input id="noteTitle" placeholder="Worum geht es?"></label>
+      <label>Meine Notiz<textarea id="noteBody" placeholder="Hier ist Platz für meine Gedanken ..." style="min-height:150px"></textarea></label>
+      <div class="note-actions"><button class="small-button" onclick="saveNoteCard()">Speichern</button><button class="subtle-add-button" onclick="closeNoteForm()">Abbrechen</button></div>
+    </div>
+    <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
+</main>
+
+<footer>🌸 Ein bisschen Zeit nur für mich 💜</footer>
+
+<script>
+let currentDate=new Date();
+currentDate.setHours(12,0,0,0);
+let selectedMood="";
+let selectedWeather="";
+
+const moods=["😍","😊","🙂","😐","😔","😢","😠","🤒"];
+const weathers=["☀️","🌤️","⛅","☁️","🌧️","⛈️","🌈","❄️"];
+const quotes=[
+  "Jeder Tag hält kleine Wunder bereit.",
+  "Auch kleine Schritte bringen dich weiter.",
+  "Heute darfst du einfach du selbst sein.",
+  "Die schönsten Momente sind oft die kleinen.",
+  "Ein neuer Tag, ein neuer Anfang.",
+  "Nimm dir Zeit für das, was dir guttut.",
+  "Manchmal ist weniger einfach mehr."
+];
+
+function dateKey(){
+  const y=currentDate.getFullYear();
+  const m=String(currentDate.getMonth()+1).padStart(2,"0");
+  const d=String(currentDate.getDate()).padStart(2,"0");
+  return y+"-"+m+"-"+d;
+}
+function storageKey(){
+  return "alltagszauber-v3-"+dateKey();
+}
+function showPage(page){["kalender","stimmung","termine","tagebuch","finanzen","sparen","gewicht","todos","wetter","notizen"].forEach(id=>document.getElementById(id).classList.toggle("hidden",id!==page));document.getElementById("bereiche").classList.toggle("hidden",page!=="kalender");window.scrollTo(0,0)}
+function showDiary(){showPage("tagebuch")}
+function changeDay(days){
+  currentDate.setDate(currentDate.getDate()+days);
+  loadDay();
+}
+function changeMonth(delta){const day=currentDate.getDate();currentDate.setDate(1);currentDate.setMonth(currentDate.getMonth()+delta);currentDate.setDate(Math.min(day,new Date(currentDate.getFullYear(),currentDate.getMonth()+1,0).getDate()));loadDay()}
+function changeYear(delta){const day=currentDate.getDate(),month=currentDate.getMonth();currentDate.setDate(1);currentDate.setFullYear(currentDate.getFullYear()+delta);currentDate.setMonth(month);currentDate.setDate(Math.min(day,new Date(currentDate.getFullYear(),month+1,0).getDate()));loadDay()}
+function jumpToDate(value){if(!/^\d{4}-\d{2}-\d{2}$/.test(value))return;const [year,month,day]=value.split("-").map(Number);const next=new Date(year,month-1,day,12);if(next.getFullYear()!==year||next.getMonth()!==month-1||next.getDate()!==day)return;currentDate=next;loadDay()}
+function goToday(){
+  currentDate=new Date();
+  currentDate.setHours(12,0,0,0);
+  loadDay();
+}
+function createEmojiButtons(containerId,values,type){
+  const container=document.getElementById(containerId);
+  container.innerHTML="";
+  values.forEach(emoji=>{
+    const button=document.createElement("button");
+    button.className="emoji";
+    button.textContent=emoji;
+    const active=type==="mood"?selectedMood:selectedWeather;
+    if(active===emoji)button.classList.add("active");
+    button.onclick=()=>{
+      if(type==="mood")selectedMood=emoji;
+      else selectedWeather=emoji;
+      saveDay();
+      renderEmojis();
+    };
+    container.appendChild(button);
+  });
+}
+function renderEmojis(){
+  createEmojiButtons("moodButtons",moods,"mood");
+  createEmojiButtons("weatherButtons",weathers,"weather");
+}
+function saveDay(){
+  const data={
+    mood:selectedMood,
+    weather:selectedWeather,
+    tempDay:document.getElementById("tempDay").value,
+    tempNight:document.getElementById("tempNight").value,
+    reminders:document.getElementById("reminders").value,
+    tasks:document.getElementById("tasks").value,
+    birthdays:document.getElementById("birthdays").value,
+    diary:document.getElementById("diary").value
+  };
+  try{
+    localStorage.setItem(storageKey(),JSON.stringify(data));
+  }catch(error){
+    console.warn("Speichern nicht möglich",error);
+  }
+}
+function loadDay(){
+  document.getElementById("jumpDate").value=dateKey();
+  document.getElementById("diaryDate").textContent=currentDate.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"2-digit"});
+  document.getElementById("dateTitle").textContent=
+    currentDate.toLocaleDateString("de-DE",{weekday:"long"})+" · "+
+    currentDate.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"2-digit"});
+  const index=Math.floor(new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    currentDate.getDate()
+  ).getTime()/86400000);
+  document.getElementById("quote").textContent=
+    quotes[((index%quotes.length)+quotes.length)%quotes.length];
+  let data={};
+  try{
+    data=JSON.parse(localStorage.getItem(storageKey())||"{}")||{};
+  }catch(error){
+    data={};
+  }
+  selectedMood=data.mood||"";
+  selectedWeather=data.weather||"";
+  ["tempDay","tempNight","reminders","tasks","birthdays","diary"]
+    .forEach(id=>{
+      document.getElementById(id).value=data[id]||"";
+    });
+  renderEmojis();
+  renderDiaryPhoto();
+}
+
+const DIARY_PHOTO_PREFIX="alltagszauber-v3-diary-photo-";
+function renderDiaryPhoto(){
+  const preview=document.getElementById("diaryPhotoPreview"),button=document.getElementById("diaryPhotoAdd");
+  let data=null;try{data=localStorage.getItem(DIARY_PHOTO_PREFIX+dateKey())}catch(e){}
+  preview.replaceChildren();
+  if(data){
+    const img=document.createElement("img");img.src=data;img.alt="Mein Tagebuchfoto";
+    const remove=document.createElement("button");remove.className="subtle-add-button";remove.textContent="Foto entfernen";remove.onclick=removeDiaryPhoto;
+    preview.append(img,remove);preview.classList.remove("hidden");button.textContent="Foto ändern";
+  }else{preview.classList.add("hidden");button.textContent="＋ Foto hinzufügen"}
+}
+function removeDiaryPhoto(){
+  if(!confirm("Möchtest du das Foto aus diesem Tagebucheintrag entfernen?"))return;
+  try{localStorage.removeItem(DIARY_PHOTO_PREFIX+dateKey());renderDiaryPhoto()}catch(e){alert("Das Foto konnte nicht entfernt werden.")}
+}
+function addDiaryPhoto(input){
+  const file=input.files&&input.files[0],targetDay=dateKey();input.value="";
+  if(!file)return;
+  if(!file.type.startsWith("image/")){alert("Bitte wähle ein Foto aus.");return}
+  const reader=new FileReader();
+  reader.onerror=()=>alert("Das Foto konnte nicht geöffnet werden.");
+  reader.onload=()=>{
+    const img=new Image();
+    img.onerror=()=>alert("Das Foto konnte nicht verarbeitet werden.");
+    img.onload=()=>{
+      const scale=Math.min(1,1200/Math.max(img.width,img.height));
+      const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+      const ctx=canvas.getContext("2d");if(!ctx){alert("Das Foto konnte nicht verarbeitet werden.");return}
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      try{
+        const photo=canvas.toDataURL("image/jpeg",0.72);
+        localStorage.setItem(DIARY_PHOTO_PREFIX+targetDay,photo);
+        if(dateKey()===targetDay)renderDiaryPhoto();
+      }catch(e){alert("Für dieses Foto reicht der verfügbare Speicher leider nicht aus. Dein Tagebucheintrag bleibt erhalten.")}
+    };
+    img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+const NOTEKEY="alltagszauber-v3-note-cards";
+let editingNoteId=null;
+function getNoteCards(){try{const data=JSON.parse(localStorage.getItem(NOTEKEY)||"[]");return Array.isArray(data)?data:[]}catch(e){return []}}
+function setNoteCards(cards){localStorage.setItem(NOTEKEY,JSON.stringify(cards))}
+function initializeNoteCards(){
+  if(localStorage.getItem(NOTEKEY)!==null)return;
+  const legacy=localStorage.getItem("alltagszauber-v3-notizen")||"";
+  setNoteCards(legacy.trim()?[{id:Date.now(),title:"Meine bisherigen Notizen",body:legacy}]:[]);
+}
+function renderNoteCards(){
+  const cards=getNoteCards(),container=document.getElementById("noteCards");
+  container.innerHTML=cards.length?cards.map((n,i)=>'<article class="note-card note-tone-'+(i%4)+'"><div class="note-card-top"><strong>'+safeExtra(n.title||"Ohne Überschrift")+'</strong><div class="note-card-actions"><button aria-label="Notiz bearbeiten" onclick="openNoteForm('+n.id+')">✎</button><button aria-label="Notiz löschen" onclick="deleteNoteCard('+n.id+')">×</button></div></div><p>'+safeExtra(n.body).replace(/\n/g,"<br>")+'</p></article>').join(""):'<p class="note-empty">Hier ist Platz für deine Gedanken und Ideen.</p>';
+}
+function openNoteForm(id){
+  editingNoteId=id==null?null:id;
+  const n=getNoteCards().find(x=>x.id===id);
+  document.getElementById("noteTitle").value=n?n.title:"";
+  document.getElementById("noteBody").value=n?n.body:"";
+  document.getElementById("noteForm").classList.remove("hidden");
+  document.getElementById("noteTitle").focus();
+}
+function closeNoteForm(){editingNoteId=null;document.getElementById("noteForm").classList.add("hidden")}
+function saveNoteCard(){
+  const title=document.getElementById("noteTitle").value.trim(),body=document.getElementById("noteBody").value.trim();
+  if(!title&&!body){alert("Bitte gib eine Überschrift oder einen Text ein.");return}
+  const cards=getNoteCards();
+  if(editingNoteId!==null){const n=cards.find(x=>x.id===editingNoteId);if(n){n.title=title;n.body=body}}
+  else cards.unshift({id:Date.now(),title,body});
+  try{setNoteCards(cards);closeNoteForm();renderNoteCards()}catch(e){alert("Die Notiz konnte nicht gespeichert werden.")}
+}
+function deleteNoteCard(id){
+  if(!confirm("Möchtest du diese Notiz wirklich löschen?"))return;
+  try{setNoteCards(getNoteCards().filter(n=>n.id!==id));if(editingNoteId===id)closeNoteForm();renderNoteCards()}catch(e){alert("Die Notiz konnte nicht gelöscht werden.")}
+}
+try{initializeNoteCards()}catch(e){console.warn("Notizen konnten nicht geladen werden",e)}
+renderNoteCards();
+loadDay();
+showPage("kalender");
+
+const EVTKEY="az-test-events",TODOKEY="az-test-todos";
+function readExtra(k){try{return JSON.parse(localStorage.getItem(k)||"{}")}catch(e){return {}}}
+function saveExtra(k,a){localStorage.setItem(k,JSON.stringify(a))}
+function safeExtra(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+let editingEventId=null,editingEventDay=null;
+function cancelEventEdit(){editingEventId=null;editingEventDay=null;["eventName","eventTime","eventYear"].forEach(id=>document.getElementById(id).value="");document.getElementById("eventBirthday").checked=false;document.getElementById("eventDate").value=dateKey();document.getElementById("eventForm").classList.add("hidden")}
+function addEvent(){const name=document.getElementById("eventName").value.trim();if(!name)return alert("Bitte Bezeichnung eingeben");const all=readExtra(EVTKEY),day=document.getElementById("eventDate").value||dateKey();const e={id:editingEventId||Date.now(),name,time:document.getElementById("eventTime").value,birthday:document.getElementById("eventBirthday").checked,year:document.getElementById("eventYear").value};if(editingEventId!==null)all[editingEventDay]=(all[editingEventDay]||[]).filter(x=>x.id!==editingEventId);(all[day] ||= []).push(e);saveExtra(EVTKEY,all);cancelEventEdit();renderExtra()}
+function eventsForDay(day){const all=readExtra(EVTKEY),found=[];Object.keys(all).forEach(sourceDay=>(all[sourceDay]||[]).forEach(e=>{if(sourceDay===day||(e.birthday&&sourceDay.slice(5)===day.slice(5)&&sourceDay<day))found.push({...e,sourceDay})}));return found.sort((a,b)=>Number(b.birthday)-Number(a.birthday)||(a.time||"").localeCompare(b.time||""))}
+function changeEvent(id,del,sourceDay){const all=readExtra(EVTKEY),day=sourceDay||dateKey(),e=(all[day]||[]).find(x=>x.id===id);if(!e)return;if(del){if(!confirm(e.birthday?"Diesen Geburtstag und seine jährlichen Wiederholungen löschen?":"Diesen Termin löschen?"))return;all[day]=all[day].filter(x=>x.id!==id);saveExtra(EVTKEY,all);renderExtra();return}editingEventId=id;editingEventDay=day;document.getElementById("eventName").value=e.name;document.getElementById("eventDate").value=day;document.getElementById("eventTime").value=e.time||"";document.getElementById("eventBirthday").checked=!!e.birthday;document.getElementById("eventYear").value=e.year||"";document.getElementById("eventForm").classList.remove("hidden");document.getElementById("eventName").focus()}
+function addTodo(){const n=document.getElementById("todoName"),name=n.value.trim();if(!name)return;const a=readExtra(TODOKEY);(a[dateKey()] ||= []).push({id:Date.now(),name,done:false});saveExtra(TODOKEY,a);n.value="";renderExtra()}
+function changeTodo(d,id,mode){const a=readExtra(TODOKEY),items=a[d]||[],x=items.find(x=>x.id===id);if(!x)return;if(mode==="done")x.done=!x.done;if(mode==="edit"){const n=prompt("Aufgabe bearbeiten",x.name);if(n!==null&&n.trim())x.name=n.trim()}if(mode==="delete")a[d]=items.filter(x=>x.id!==id);saveExtra(TODOKEY,a);renderExtra()}
+function renderExtra(){const dateInput=document.getElementById("eventDate");if(dateInput&&document.activeElement!==dateInput)dateInput.value=dateKey();const d=dateKey(),events=eventsForDay(d);
+document.getElementById("eventList").innerHTML=events.map(x=>'<div class="item"><span>'+(x.birthday?'🎂 ':'📌 ')+(x.time?'<strong class="event-time">'+safeExtra(x.time)+' Uhr</strong> · ':'')+safeExtra(x.name)+(x.birthday&&/^\d{4}$/.test(String(x.year||''))&&Number(x.year)<=Number(d.slice(0,4))?' · wird '+(Number(d.slice(0,4))-Number(x.year))+' Jahre':'')+'</span><button onclick="changeEvent('+x.id+',false,\''+x.sourceDay+'\')">✎</button><button onclick="changeEvent('+x.id+',true,\''+x.sourceDay+'\')">×</button></div>').join("");
+const a=readExtra(TODOKEY),tasks=[];Object.keys(a).sort().forEach(k=>{if(k<=d)(a[k]||[]).forEach(x=>{if(k===d||!x.done)tasks.push({...x,day:k})})});
+document.getElementById("todoList").innerHTML=tasks.map(x=>'<div class="item"><input type="checkbox" '+(x.done?'checked ':'')+'onchange="changeTodo(\''+x.day+'\','+x.id+',\'done\')"><label class="todo-text" onclick="changeTodo(\''+x.day+'\','+x.id+',\'done\')">'+safeExtra(x.name)+'</label><button onclick="changeTodo(\''+x.day+'\','+x.id+',\'edit\')">✎</button><button onclick="changeTodo(\''+x.day+'\','+x.id+',\'delete\')">×</button></div>').join("");
+}
+const previousLoadDay=loadDay;loadDay=function(){previousLoadDay();renderExtra()};renderExtra();
+
+
+const FINKEY="az-finance-test-v1",SAVEKEY="az-savings-test-v1";
+function eur(v){return Number(v||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"})}
+let financeMonth=new Date().toLocaleDateString("sv-SE").slice(0,7);
+function shiftFinanceMonth(delta){const [y,m]=financeMonth.split("-").map(Number);const d=new Date(y,m-1+delta,1);financeMonth=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");renderFinance()}
+function addFinance(){const n=document.getElementById("financeName"),a=document.getElementById("financeAmount"),date=document.getElementById("financeDate").value,amount=Number(a.value);if(!date||!n.value.trim()||!a.value||!Number.isFinite(amount)||amount<=0)return alert("Bitte Datum, Beschreibung und positiven Betrag eingeben.");const data=readExtra(FINKEY);(data.entries ||= []).push({id:Date.now(),date,name:n.value.trim(),amount,type:document.getElementById("financeType").value==="income"?"Einnahme":"Ausgabe",repeat:document.getElementById("financeRepeat").value,category:document.getElementById("financeType").value==="fixed"?"fixed":"variable"});saveExtra(FINKEY,data);financeMonth=date.slice(0,7);n.value="";a.value="";document.getElementById("financeRepeat").value="none";renderFinance()}
+function financeOccurrence(x,month){if(!x.date)return null;const repeat=x.repeat||"none";if(repeat==="none")return x.date.slice(0,7)===month?{...x,occurrenceDate:x.date}:null;const [sy,sm,sd]=x.date.split("-").map(Number),[y,m]=month.split("-").map(Number);const months=(y-sy)*12+m-sm;if(months<0||repeat==="monthly"&&months<0||repeat==="quarterly"&&months%3!==0||repeat==="yearly"&&months%12!==0)return null;const day=Math.min(sd,new Date(y,m,0).getDate());return {...x,occurrenceDate:month+"-"+String(day).padStart(2,"0"),generated:months>0}}
+function editFinance(id){const data=readExtra(FINKEY),x=(data.entries||[]).find(x=>x.id===id);if(!x)return;if(x.repeat&&x.repeat!=="none"&&!confirm("Diese Änderung gilt für die gesamte wiederkehrende Buchung. Fortfahren?"))return;const name=prompt("Beschreibung bearbeiten",x.name);if(name===null)return;if(!name.trim())return alert("Bitte eine Beschreibung eingeben.");const amountRaw=prompt("Betrag in Euro",String(x.amount));if(amountRaw===null)return;const amount=Number(amountRaw.replace(",","."));if(!Number.isFinite(amount)||amount<=0)return alert("Ungültiger Betrag.");const date=prompt("Startdatum (JJJJ-MM-TT)",x.date||financeMonth+"-01");if(date===null)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||Number.isNaN(Date.parse(date)))return alert("Ungültiges Datum.");const repeat=prompt("Wiederholung: einmalig, monatlich, quartal, jährlich",({none:"einmalig",monthly:"monatlich",quarterly:"quartal",yearly:"jährlich"})[x.repeat||"none"]);if(repeat===null)return;const options={"einmalig":"none","monatlich":"monthly","quartal":"quarterly","vierteljährlich":"quarterly","jährlich":"yearly"};if(!(repeat.toLowerCase().trim() in options))return alert("Bitte eine gültige Wiederholung eingeben.");if(x.type==="Ausgabe"){const category=prompt("Kostenart: fix oder variabel",x.category==="fixed"?"fix":"variabel");if(category===null)return;if(!["fix","variabel"].includes(category.trim().toLowerCase()))return alert("Bitte fix oder variabel eingeben.");x.category=category.trim().toLowerCase()==="fix"?"fixed":"variable";}x.name=name.trim();x.amount=amount;x.date=date;x.repeat=options[repeat.toLowerCase().trim()];saveExtra(FINKEY,data);financeMonth=date.slice(0,7);renderFinance()}
+function deleteFinance(id){const data=readExtra(FINKEY),x=(data.entries||[]).find(x=>x.id===id);if(!x)return;if(!confirm(x.repeat&&x.repeat!=="none"?"Diese wiederkehrende Buchung vollständig löschen (auch in anderen Monaten)?":"Diese Buchung löschen?"))return;data.entries=(data.entries||[]).filter(x=>x.id!==id);saveExtra(FINKEY,data);renderFinance()}
+function renderFinance(){const entries=(readExtra(FINKEY).entries||[]).map(x=>financeOccurrence(x,financeMonth)).filter(Boolean).sort((a,b)=>b.occurrenceDate.localeCompare(a.occurrenceDate));const [y,m]=financeMonth.split("-").map(Number);document.getElementById("financeMonthLabel").textContent=new Date(y,m-1,1).toLocaleDateString("de-DE",{month:"long",year:"numeric"});const income=entries.filter(x=>x.type==="Einnahme").reduce((s,x)=>s+Number(x.amount),0),out=entries.filter(x=>x.type==="Ausgabe").reduce((s,x)=>s+Number(x.amount),0);document.getElementById("financeSummary").innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0"><div class="summary-total" style="background:#e8f6f3;border-radius:16px;padding:14px;text-align:center">Einnahmen<br><strong>'+eur(income)+'</strong></div><div class="summary-total" style="background:#f1eafa;border-radius:16px;padding:14px;text-align:center">Ausgaben<br><strong>'+eur(out)+'</strong></div></div><div class="summary-total" style="text-align:center;margin:10px 0 20px">Monatssaldo: <strong>'+eur(income-out)+'</strong></div>';const labels={monthly:"monatlich",quarterly:"vierteljährlich",yearly:"jährlich"};const graph=document.getElementById("financeChart");if(graph){const fixed=entries.filter(x=>x.type==="Ausgabe"&&(x.category==="fixed"||(!x.category&&x.repeat&&x.repeat!=="none"))).reduce((s,x)=>s+Number(x.amount),0),variable=out-fixed;const top=Math.max(income,out,1);const bar=(label,value,color)=>'<div style="display:grid;grid-template-columns:88px 1fr;gap:10px;align-items:center;margin:11px 0"><span style="font-size:13px">'+label+'</span><div style="background:#f4f2f7;border-radius:12px;height:20px;overflow:hidden"><div style="height:100%;width:'+Math.min(100,value/top*100)+'%;background:'+color+';border-radius:12px"></div></div></div>';graph.innerHTML='<div style="margin:8px 0 18px;padding:14px 16px;background:linear-gradient(135deg,#f2fbf9,#f7f1fc);border-radius:18px"><div style="text-align:center;font-size:13px;color:#77698a;margin-bottom:8px">Einnahmen und Ausgaben im Vergleich</div>'+bar('Einnahmen',income,'#8bcfc6')+ '<div style="display:grid;grid-template-columns:88px 1fr;gap:10px;align-items:center;margin:11px 0"><span style="font-size:13px">Ausgaben</span><div style="height:20px;background:#f4f2f7;border-radius:12px;overflow:hidden;display:flex"><div style="width:'+(fixed/top*100)+'%;background:#a68bc6"></div><div style="width:'+(variable/top*100)+'%;background:#d5bde7"></div></div></div><div style="font-size:12px;text-align:center;color:#77698a">■ Fixkosten: '+eur(fixed)+' &nbsp; ■ Variable Kosten: '+eur(variable)+'</div></div>';} document.getElementById("financeList").innerHTML=entries.length?entries.map(x=>'<div class="item"><span>'+x.occurrenceDate.slice(8,10)+'.'+x.occurrenceDate.slice(5,7)+'.'+x.occurrenceDate.slice(2,4)+' · '+safeExtra(x.name)+' · '+safeExtra(x.type)+' · '+eur(x.amount)+(labels[x.repeat]?' <small style="color:#8b75a2">↻ '+labels[x.repeat]+'</small>':'')+'</span><button aria-label="Bearbeiten" onclick="editFinance('+x.id+')">✎</button><button aria-label="Löschen" onclick="deleteFinance('+x.id+')">×</button></div>').join(""):'<p style="text-align:center;opacity:.75">Für diesen Monat gibt es noch keine Buchungen.</p>'}
+document.getElementById("financeDate").value=new Date().toLocaleDateString("sv-SE");
+function addSaving(){const n=document.getElementById("savingName"),a=document.getElementById("savingAmount"),amount=Number(a.value),account=Number(document.getElementById("savingAccount").value);if(!n.value.trim()||!a.value||!Number.isFinite(amount)||amount===0)return alert("Bitte Beschreibung und Betrag eingeben.");const data=readExtra(SAVEKEY);(data.entries ||= []).push({id:Date.now(),account,name:n.value.trim(),amount});saveExtra(SAVEKEY,data);n.value="";a.value="";renderSavings()}
+function deleteSaving(id){const data=readExtra(SAVEKEY);data.entries=(data.entries||[]).filter(x=>x.id!==id);saveExtra(SAVEKEY,data);renderSavings()}
+function renderSavings(){const entries=readExtra(SAVEKEY).entries||[];document.getElementById("savingsList").innerHTML=[0,1].map(i=>{const e=entries.filter(x=>x.account===i);return '<h2>🏦 Sparbuch '+(i+1)+'</h2><div class="summary-total">Stand: '+eur(e.reduce((s,x)=>s+x.amount,0))+'</div>'+e.map(x=>'<div class="item"><span>'+safeExtra(x.name)+' · '+eur(x.amount)+'</span><button onclick="deleteSaving('+x.id+')">×</button></div>').join("")}).join("")}
+renderFinance();renderSavings();
+
+const WEIGHTKEY="az-weight-test-v1";
+function weightData(){const d=readExtra(WEIGHTKEY);return {entries:Array.isArray(d.entries)?d.entries:[],goal:d.goal||""}}
+function weightFormat(n){return Number(n).toLocaleString("de-DE",{maximumFractionDigits:1})+" kg"}
+function addWeight(){
+ const date=document.getElementById("weightDate").value,raw=document.getElementById("weightValue").value.replace(",",".");
+ const value=Number(raw);
+ if(!date||!raw||!Number.isFinite(value)||value<=0||value>500)return alert("Bitte Datum und gültiges Gewicht eingeben.");
+ const note=document.getElementById("weightNote").value.trim();
+ const d=weightData();const existing=d.entries.find(x=>x.date===date);
+ if(existing){if(!confirm("Für diesen Tag gibt es bereits einen Eintrag. Überschreiben?"))return;existing.value=value;existing.note=note}
+ else d.entries.push({date,value,note});
+ saveExtra(WEIGHTKEY,d);document.getElementById("weightValue").value="";document.getElementById("weightNote").value="";selectedWeightDate=null;document.getElementById("weightDeleteSelected").classList.add("hidden");renderWeight();
+}
+function saveWeightGoal(){const d=weightData(),raw=document.getElementById("weightGoal").value;const n=Number(raw);if(raw&&(n<=0||n>500))return alert("Bitte ein gültiges Wunschgewicht eingeben.");d.goal=raw?n:"";saveExtra(WEIGHTKEY,d);renderWeight()}
+let selectedWeightDate=null;
+function editWeight(date){selectedWeightDate=date;document.getElementById("weightDeleteSelected").classList.remove("hidden");const d=weightData(),x=d.entries.find(x=>x.date===date);if(!x)return;document.getElementById("weightDate").value=x.date;document.getElementById("weightValue").value=x.value;document.getElementById("weightNote").value=x.note||"";document.getElementById("weightValue").focus()}
+function deleteSelectedWeight(){if(selectedWeightDate)deleteWeight(selectedWeightDate)}
+function deleteWeight(date){if(!confirm("Gewichtseintrag löschen?"))return;const d=weightData();d.entries=d.entries.filter(x=>x.date!==date);saveExtra(WEIGHTKEY,d);selectedWeightDate=null;document.getElementById("weightDeleteSelected").classList.add("hidden");document.getElementById("weightValue").value="";document.getElementById("weightNote").value="";renderWeight()}
+function renderWeight(){
+ const d=weightData(),e=d.entries.slice().sort((a,b)=>a.date.localeCompare(b.date));
+ const summary=document.getElementById("weightSummary"),chart=document.getElementById("weightChart"),list=document.getElementById("weightList");
+ const goal=document.getElementById("weightGoal");if(document.activeElement!==goal)goal.value=d.goal;
+ if(!e.length){summary.innerHTML='<p>Noch keine Einträge – dein Weg beginnt mit dem ersten Schritt. 💜</p>';chart.innerHTML="";list.innerHTML="";return}
+ const first=e[0].value,last=e[e.length-1].value,diff=last-first;
+ summary.innerHTML='<div style="font-size:28px;font-family:Georgia,serif">'+weightFormat(last)+'</div><div style="margin-top:6px">Veränderung seit dem ersten Eintrag: <strong>'+(diff>0?"+":"")+weightFormat(diff)+'</strong></div>'+(d.goal?'<div style="margin-top:5px">Mein Wunschgewicht: '+weightFormat(d.goal)+'</div>':"");
+ if(e.length===1){chart.innerHTML='<p style="text-align:center;font-size:13px">Mit dem nächsten Eintrag erscheint hier dein Gewichtsverlauf.</p>'}
+ else{
+ const vals=e.map(x=>x.value),lo=Math.min(...vals),hi=Math.max(...vals),pad=Math.max((hi-lo)*.15,1),min=lo-pad,max=hi+pad;
+ const pts=e.map((x,i)=>[20+i*280/(e.length-1),130-(x.value-min)/(max-min)*110]);
+ const poly=pts.map(p=>p.join(",")).join(" ");
+ chart.innerHTML='<svg viewBox="0 0 320 165" role="img" aria-label="Gewichtsverlauf vom ersten bis zum letzten Eintrag" style="width:100%;max-height:230px;background:linear-gradient(145deg,#eaf8f5,#f4effa);border-radius:18px"><line x1="20" y1="130" x2="300" y2="130" stroke="#d8e9e7" stroke-width="1.5"/><polyline fill="none" stroke="#74bcb5" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" points="'+poly+'"/>'+pts.map((p,i)=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+((i===0||i===pts.length-1)?5:3.5)+'" fill="#a68bc6" stroke="#fff" stroke-width="1.5"/>').join("")+'<text x="'+(pts[0][0]+3)+'" y="'+Math.max(13,pts[0][1]-24)+'" font-size="9" text-anchor="start" fill="#655778">'+e[0].date.slice(8,10)+'.'+e[0].date.slice(5,7)+'.'+e[0].date.slice(2,4)+'</text><text x="'+(pts[0][0]+3)+'" y="'+Math.max(25,pts[0][1]-12)+'" font-size="10" text-anchor="start" fill="#655778">'+weightFormat(first)+'</text><text x="'+pts[pts.length-1][0]+'" y="'+Math.min(155,pts[pts.length-1][1]+18)+'" font-size="10" text-anchor="end" fill="#655778">'+weightFormat(last)+'</text></svg><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+e[0].date.split("-").reverse().join(".")+'</span><span>'+e[e.length-1].date.split("-").reverse().join(".")+'</span></div>';
+ }
+ list.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:470px"><thead><tr style="background:#f0e9f7"><th>Datum</th><th>Gewicht</th><th>Zum Voreintrag</th><th>Gesamtabnahme</th><th>Notiz</th></tr></thead><tbody>'+e.map((x,i)=>({x,i})).reverse().map(({x,i})=>{const prev=i?x.value-e[i-1].value:null,total=e[0].value-x.value;return '<tr tabindex="0" role="button" aria-label="Gewichtseintrag bearbeiten" onclick="editWeight(\''+x.date+'\')" style="border-bottom:1px solid #e9e0ee;cursor:pointer"><td style="padding:11px 5px;white-space:nowrap">'+x.date.split("-").reverse().join(".")+'</td><td>'+weightFormat(x.value)+'</td><td style="text-align:center;white-space:nowrap">'+(prev===null?'–':(prev>0?'+':'')+weightFormat(prev))+'</td><td style="text-align:center;white-space:nowrap">'+(total>0?'+':'')+weightFormat(total)+'</td><td style="max-width:155px;overflow-wrap:anywhere">'+safeExtra(x.note||'–')+'</td></tr>'}).join('')+'</tbody></table></div><p style="font-size:11px;opacity:.7">Eintrag antippen zum Bearbeiten oder Löschen. Minus zum Voreintrag = Abnahme. Positive Gesamtabnahme = Gewichtsverlust.</p>';
+}
+document.getElementById("weightDate").value=new Date().toLocaleDateString("sv-SE");renderWeight();
+</script>
+</body>
+</html>
