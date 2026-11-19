@@ -238,6 +238,7 @@ footer {
 .add-action{display:flex;justify-content:flex-end;margin:12px 0 4px}.subtle-add-button{font:inherit;font-size:12px;color:#756986;background:#ffffff70;border:1px solid #dfd6e7;border-radius:18px;padding:6px 11px;cursor:pointer}.subtle-add-button:active{background:#e9ddf4}
 .note-cards{display:grid;gap:12px}.note-card{border:1px solid #ded5eb;background:linear-gradient(125deg,#f9f5ff,#f0faf8);border-radius:17px;padding:14px 15px}.note-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;color:#655778}.note-card-top strong{font-family:Georgia,serif;font-size:17px;font-weight:normal}.note-card-actions{display:flex;gap:5px}.note-card-actions button{border:0;background:transparent;color:#81738f;padding:3px 7px;cursor:pointer}.note-card p{white-space:normal;overflow-wrap:anywhere;margin:9px 0 0;line-height:1.55;font-size:14px}.note-empty{color:#80768a;text-align:center;padding:22px 6px}.note-form{margin-top:15px}.note-actions{display:flex;align-items:center;gap:10px;margin-top:10px}
 .note-card.note-tone-0{background:#f1eafa;border-color:#e3d5f0}.note-card.note-tone-1{background:#e8f6f3;border-color:#d2ebe6}.note-card.note-tone-2{background:#f1f0fa;border-color:#dfddef}.note-card.note-tone-3{background:#eaf4f8;border-color:#d5e7ed}
+.diary-intro{text-align:center;margin:5px 0 20px}.diary-date{font-family:Georgia,serif;font-size:17px;color:#6d6081}.diary-intro p{font-family:Georgia,serif;font-style:italic;font-size:14px;color:#8a7d98;margin:8px 0 0}.diary-writing{min-height:260px!important;line-height:1.75;background:linear-gradient(145deg,#fbf9ff,#f1faf8);border:1px solid #ded7ea;border-radius:18px;padding:17px!important;resize:vertical}.diary-save-hint{text-align:right;font-size:11px;color:#8b8494;margin:7px 3px 0}
 </style>
 </head>
 <body>
@@ -373,10 +374,11 @@ footer {
     <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
     </section>
 <section id="tagebuch" class="panel hidden feature-page"><h2 class="feature-heading">Mein Tagebuch</h2>
-      <textarea id="diary"
-        placeholder="Was hat meinen Tag besonders gemacht?"
-        style="min-height:180px"
+      <div class="diary-intro"><div id="diaryDate" class="diary-date"></div><p>Ein kleiner Moment nur für mich</p></div>
+      <textarea id="diary" class="diary-writing"
+        placeholder="Was hat meinen Tag besonders gemacht?\n\nWas möchte ich in Erinnerung behalten?"
         oninput="saveDay()"></textarea>
+      <p class="diary-save-hint">Deine Gedanken werden automatisch gespeichert.</p>
     <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
 </section>
 
@@ -509,6 +511,7 @@ function saveDay(){
 }
 function loadDay(){
   document.getElementById("jumpDate").value=dateKey();
+  document.getElementById("diaryDate").textContent=currentDate.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"2-digit",year:"2-digit"});
   document.getElementById("dateTitle").textContent=
     currentDate.toLocaleDateString("de-DE",{weekday:"long"})+" · "+
     currentDate.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"2-digit"});
