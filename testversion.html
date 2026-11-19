@@ -236,6 +236,7 @@ footer {
 @media(max-width:420px){.areas-section{padding:16px 10px 12px}.area-grid{gap:10px}.area-tile{min-height:112px;padding:13px 6px;border-radius:20px}.area-tile strong{font-size:15px}.area-tile small{font-size:11px}}.event-time{display:inline-block;min-width:74px;font-weight:700;color:#655778}.date-options{margin:10px auto 8px;text-align:center;max-width:330px}.date-options summary{display:inline-block;cursor:pointer;list-style:none;font-size:12px;color:var(--ink);opacity:.75;padding:7px 13px;border-radius:20px;background:#ffffffa8;border:1px solid #e9dfed}.date-options summary::-webkit-details-marker{display:none}.date-options[open] summary{opacity:1}.date-options-content{margin-top:10px;padding:12px;border-radius:18px;background:#ffffffa6;border:1px solid #e9dfed}.date-jump{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 0 12px}.date-jump .small-button{font-size:12px;padding:9px 8px;margin:0}.date-pick{text-align:center}.date-pick label{display:block;font-size:12px}.date-pick input{display:block;width:100%;max-width:220px;margin:7px auto 0;padding:7px;border-radius:12px;border:1px solid #d7c9e3;color:var(--ink);background:#fff}.back-bottom{display:flex;justify-content:flex-end;margin-top:24px}.todo-text{flex:1;cursor:pointer;line-height:1.5;padding:5px 0}.todo-text:active{opacity:.7}
 .feature-heading{font-family:Georgia,serif;font-size:24px;font-weight:normal;text-align:center;color:#655778;letter-spacing:.3px;margin:8px 0 24px;padding-bottom:15px;position:relative}.feature-heading::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:90px;height:2px;border-radius:4px;background:linear-gradient(90deg,#d9c5e9,#bde8e0,#d9c5e9)}
 .add-action{display:flex;justify-content:flex-end;margin:12px 0 4px}.subtle-add-button{font:inherit;font-size:12px;color:#756986;background:#ffffff70;border:1px solid #dfd6e7;border-radius:18px;padding:6px 11px;cursor:pointer}.subtle-add-button:active{background:#e9ddf4}
+.note-cards{display:grid;gap:12px}.note-card{border:1px solid #ded5eb;background:linear-gradient(125deg,#f9f5ff,#f0faf8);border-radius:17px;padding:14px 15px}.note-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;color:#655778}.note-card-top strong{font-family:Georgia,serif;font-size:17px;font-weight:normal}.note-card-actions{display:flex;gap:5px}.note-card-actions button{border:0;background:transparent;color:#81738f;padding:3px 7px;cursor:pointer}.note-card p{white-space:normal;overflow-wrap:anywhere;margin:9px 0 0;line-height:1.55;font-size:14px}.note-empty{color:#80768a;text-align:center;padding:22px 6px}.note-form{margin-top:15px}.note-actions{display:flex;align-items:center;gap:10px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -412,11 +413,14 @@ footer {
 
   <section id="notizen" class="panel hidden">
     <h2 class="feature-heading">Meine Notizen</h2>
-    <textarea id="generalNotes"
-      placeholder="Hier ist Platz für meine Gedanken ..."
-      style="min-height:220px"
-      oninput="saveNotes()"></textarea>
-  <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+    <div id="noteCards" class="note-cards"></div>
+    <div class="add-action"><button class="subtle-add-button" onclick="openNoteForm()">＋ Hinzufügen</button></div>
+    <div id="noteForm" class="hidden note-form">
+      <label>Überschrift<input id="noteTitle" placeholder="Worum geht es?"></label>
+      <label>Meine Notiz<textarea id="noteBody" placeholder="Hier ist Platz für meine Gedanken ..." style="min-height:150px"></textarea></label>
+      <div class="note-actions"><button class="small-button" onclick="saveNoteCard()">Speichern</button><button class="subtle-add-button" onclick="closeNoteForm()">Abbrechen</button></div>
+    </div>
+    <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
 </section>
 </main>
 
@@ -528,20 +532,42 @@ function loadDay(){
     });
   renderEmojis();
 }
-function saveNotes(){
-  try{
-    localStorage.setItem(
-      "alltagszauber-v3-notizen",
-      document.getElementById("generalNotes").value
-    );
-  }catch(error){
-    console.warn("Notizen konnten nicht gespeichert werden",error);
-  }
+const NOTEKEY="alltagszauber-v3-note-cards";
+let editingNoteId=null;
+function getNoteCards(){try{const data=JSON.parse(localStorage.getItem(NOTEKEY)||"[]");return Array.isArray(data)?data:[]}catch(e){return []}}
+function setNoteCards(cards){localStorage.setItem(NOTEKEY,JSON.stringify(cards))}
+function initializeNoteCards(){
+  if(localStorage.getItem(NOTEKEY)!==null)return;
+  const legacy=localStorage.getItem("alltagszauber-v3-notizen")||"";
+  setNoteCards(legacy.trim()?[{id:Date.now(),title:"Meine bisherigen Notizen",body:legacy}]:[]);
 }
-try{
-  document.getElementById("generalNotes").value=
-    localStorage.getItem("alltagszauber-v3-notizen")||"";
-}catch(error){}
+function renderNoteCards(){
+  const cards=getNoteCards(),container=document.getElementById("noteCards");
+  container.innerHTML=cards.length?cards.map(n=>'<article class="note-card"><div class="note-card-top"><strong>'+safeExtra(n.title||"Ohne Überschrift")+'</strong><div class="note-card-actions"><button aria-label="Notiz bearbeiten" onclick="openNoteForm('+n.id+')">✎</button><button aria-label="Notiz löschen" onclick="deleteNoteCard('+n.id+')">×</button></div></div><p>'+safeExtra(n.body).replace(/\n/g,"<br>")+'</p></article>').join(""):'<p class="note-empty">Hier ist Platz für deine Gedanken und Ideen.</p>';
+}
+function openNoteForm(id){
+  editingNoteId=id==null?null:id;
+  const n=getNoteCards().find(x=>x.id===id);
+  document.getElementById("noteTitle").value=n?n.title:"";
+  document.getElementById("noteBody").value=n?n.body:"";
+  document.getElementById("noteForm").classList.remove("hidden");
+  document.getElementById("noteTitle").focus();
+}
+function closeNoteForm(){editingNoteId=null;document.getElementById("noteForm").classList.add("hidden")}
+function saveNoteCard(){
+  const title=document.getElementById("noteTitle").value.trim(),body=document.getElementById("noteBody").value.trim();
+  if(!title&&!body){alert("Bitte gib eine Überschrift oder einen Text ein.");return}
+  const cards=getNoteCards();
+  if(editingNoteId!==null){const n=cards.find(x=>x.id===editingNoteId);if(n){n.title=title;n.body=body}}
+  else cards.unshift({id:Date.now(),title,body});
+  try{setNoteCards(cards);closeNoteForm();renderNoteCards()}catch(e){alert("Die Notiz konnte nicht gespeichert werden.")}
+}
+function deleteNoteCard(id){
+  if(!confirm("Möchtest du diese Notiz wirklich löschen?"))return;
+  try{setNoteCards(getNoteCards().filter(n=>n.id!==id));if(editingNoteId===id)closeNoteForm();renderNoteCards()}catch(e){alert("Die Notiz konnte nicht gelöscht werden.")}
+}
+try{initializeNoteCards()}catch(e){console.warn("Notizen konnten nicht geladen werden",e)}
+renderNoteCards();
 loadDay();
 showPage("kalender");
 
