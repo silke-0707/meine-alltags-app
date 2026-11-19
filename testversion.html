@@ -356,7 +356,7 @@ footer {
 </section>
 <section id="termine" class="panel hidden feature-page"><h2 class="feature-heading">Mein Kalender</h2>
       <div id="eventList"></div>
-      <button class="small-button" onclick="document.getElementById('eventForm').classList.toggle('hidden')">＋ Hinzufügen</button>
+      <div class="add-action"><button class="subtle-add-button" onclick="document.getElementById('eventForm').classList.toggle('hidden')">＋ Hinzufügen</button></div>
       <div id="eventForm" class="hidden"><label>Bezeichnung<input id="eventName" placeholder="Was steht an?"></label><label>Datum<input id="eventDate" type="date"></label><label>Uhrzeit (optional)<input id="eventTime" type="time"></label><label><input type="checkbox" id="eventBirthday" style="width:auto"> Geburtstag</label><input id="eventYear" type="number" placeholder="Geburtsjahr (optional)"><button class="small-button" onclick="addEvent()">Speichern</button><button class="small-button" onclick="cancelEventEdit()">Abbrechen</button></div>
       <div class="hidden" aria-hidden="true"><textarea id="reminders"
         placeholder="Meine Termine und Erinnerungen ..."
