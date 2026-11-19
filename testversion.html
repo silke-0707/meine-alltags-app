@@ -420,6 +420,7 @@ footer {
       <label>Datum<input type="date" id="weightDate"></label>
       <label>Gewicht (kg)<input type="number" id="weightValue" min="1" max="500" step="0.1" inputmode="decimal" placeholder="z. B. 80,5"></label>
     </div>
+    <label style="display:block;margin-top:12px">Notiz (optional)<textarea id="weightNote" rows="2" style="min-height:65px" placeholder="z. B. Beginn der Periode …"></textarea></label>
     <div class="add-action"><button class="subtle-add-button" onclick="addWeight()">＋ Gewicht eintragen</button></div>
     <details style="margin:14px 0"><summary style="cursor:pointer">Mein Wunschgewicht (optional)</summary><label>Wunschgewicht in kg<input type="number" id="weightGoal" min="1" max="500" step="0.1" inputmode="decimal" onchange="saveWeightGoal()"></label></details>
     <h3 style="font-family:Georgia,serif;font-weight:normal;text-align:center">Meine bisherigen Einträge</h3>
@@ -670,13 +671,14 @@ function addWeight(){
  const date=document.getElementById("weightDate").value,raw=document.getElementById("weightValue").value.replace(",",".");
  const value=Number(raw);
  if(!date||!raw||!Number.isFinite(value)||value<=0||value>500)return alert("Bitte Datum und gültiges Gewicht eingeben.");
+ const note=document.getElementById("weightNote").value.trim();
  const d=weightData();const existing=d.entries.find(x=>x.date===date);
- if(existing){if(!confirm("Für diesen Tag gibt es bereits einen Eintrag. Überschreiben?"))return;existing.value=value}
- else d.entries.push({date,value});
- saveExtra(WEIGHTKEY,d);document.getElementById("weightValue").value="";renderWeight();
+ if(existing){if(!confirm("Für diesen Tag gibt es bereits einen Eintrag. Überschreiben?"))return;existing.value=value;existing.note=note}
+ else d.entries.push({date,value,note});
+ saveExtra(WEIGHTKEY,d);document.getElementById("weightValue").value="";document.getElementById("weightNote").value="";renderWeight();
 }
 function saveWeightGoal(){const d=weightData(),raw=document.getElementById("weightGoal").value;const n=Number(raw);if(raw&&(n<=0||n>500))return alert("Bitte ein gültiges Wunschgewicht eingeben.");d.goal=raw?n:"";saveExtra(WEIGHTKEY,d);renderWeight()}
-function editWeight(date){const d=weightData(),x=d.entries.find(x=>x.date===date);if(!x)return;document.getElementById("weightDate").value=x.date;document.getElementById("weightValue").value=x.value;document.getElementById("weightValue").focus()}
+function editWeight(date){const d=weightData(),x=d.entries.find(x=>x.date===date);if(!x)return;document.getElementById("weightDate").value=x.date;document.getElementById("weightValue").value=x.value;document.getElementById("weightNote").value=x.note||"";document.getElementById("weightValue").focus()}
 function deleteWeight(date){if(!confirm("Gewichtseintrag löschen?"))return;const d=weightData();d.entries=d.entries.filter(x=>x.date!==date);saveExtra(WEIGHTKEY,d);renderWeight()}
 function renderWeight(){
  const d=weightData(),e=d.entries.slice().sort((a,b)=>a.date.localeCompare(b.date));
@@ -692,7 +694,7 @@ function renderWeight(){
  const poly=pts.map(p=>p.join(",")).join(" ");
  chart.innerHTML='<svg viewBox="0 0 320 150" role="img" aria-label="Gewichtsverlauf vom ersten bis zum letzten Eintrag" style="width:100%;max-height:210px;background:#f5eff9;border-radius:18px"><line x1="20" y1="130" x2="300" y2="130" stroke="#d8c9e6"/><polyline fill="none" stroke="#8c75ac" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="'+poly+'"/>'+pts.map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="4" fill="#6ba9a5"/>').join("")+'</svg><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+e[0].date.split("-").reverse().join(".")+'</span><span>'+e[e.length-1].date.split("-").reverse().join(".")+'</span></div>';
  }
- list.innerHTML=e.slice().reverse().map(x=>'<div class="item"><span>'+x.date.split("-").reverse().join(".")+' · '+weightFormat(x.value)+'</span><button aria-label="Bearbeiten" onclick="editWeight(\''+x.date+'\')">✎</button><button aria-label="Löschen" onclick="deleteWeight(\''+x.date+'\')">×</button></div>').join("");
+ list.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:560px"><thead><tr style="background:#f0e9f7"><th>Datum</th><th>Gewicht</th><th>Zum Voreintrag</th><th>Gesamtabnahme</th><th>Notiz</th><th>Aktion</th></tr></thead><tbody>'+e.map((x,i)=>({x,i})).reverse().map(({x,i})=>{const prev=i?x.value-e[i-1].value:null,total=e[0].value-x.value;return '<tr style="border-bottom:1px solid #e9e0ee"><td style="padding:9px 5px;white-space:nowrap">'+x.date.split("-").reverse().join(".")+'</td><td>'+weightFormat(x.value)+'</td><td style="text-align:center;white-space:nowrap">'+(prev===null?'–':(prev>0?'+':'')+weightFormat(prev))+'</td><td style="text-align:center;white-space:nowrap">'+(total>0?'+':'')+weightFormat(total)+'</td><td style="max-width:150px;overflow-wrap:anywhere">'+safeExtra(x.note||'–')+'</td><td style="white-space:nowrap"><button aria-label="Bearbeiten" onclick="editWeight(\''+x.date+'\')">✎</button><button aria-label="Löschen" onclick="deleteWeight(\''+x.date+'\')">×</button></td></tr>'}).join('')+'</tbody></table></div><p style="font-size:11px;opacity:.7">Minus zum Voreintrag = Abnahme. Positive Gesamtabnahme = Gewichtsverlust. Tabelle bei Bedarf seitlich wischen.</p>';
 }
 document.getElementById("weightDate").value=new Date().toLocaleDateString("sv-SE");renderWeight();
 </script>
