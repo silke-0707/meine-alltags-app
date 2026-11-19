@@ -334,8 +334,9 @@ footer {
 <button class="area-tile" onclick="showPage('sparen')">🏦 <strong>Meine Sparbücher</strong><small>Beide Sparkonten</small></button>
 <button class="area-tile" onclick="showPage('gewicht')">⚖️ <strong>Mein Wohlfühlweg</strong><small>Gewichtsentwicklung</small></button>
 </div></section>
-<section id="stimmung" class="panel hidden feature-page"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button><h2>💜 Wie fühle ich mich heute?</h2><div class="emoji-row" id="moodButtons"></div></section>
-<section id="wetter" class="panel hidden feature-page"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button><h2>🌤️ Mein Wetter</h2>
+<section id="stimmung" class="panel hidden feature-page"><h2 class="feature-heading">Meine Stimmung</h2><div class="emoji-row" id="moodButtons"></div><div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
+<section id="wetter" class="panel hidden feature-page"><h2 class="feature-heading">Mein Wetter</h2>
       <div class="emoji-row" id="weatherButtons"></div>
       <div class="temp-row">
         <label>☀️ Tagsüber
@@ -350,7 +351,8 @@ footer {
       <p class="note">
         Die automatische Wettervorhersage ergänzen wir später.
       </p>
-    </section>
+    <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
 <section id="termine" class="panel hidden feature-page"><h2 class="feature-heading">Mein Kalender</h2>
       <div id="eventList"></div>
       <button class="small-button" onclick="document.getElementById('eventForm').classList.toggle('hidden')">＋ Hinzufügen</button>
@@ -367,15 +369,16 @@ footer {
         oninput="saveDay()"></textarea></div>
     <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
     </section>
-<section id="tagebuch" class="panel hidden feature-page"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button><h2>📖 Mein Tagebuch</h2>
+<section id="tagebuch" class="panel hidden feature-page"><h2 class="feature-heading">Mein Tagebuch</h2>
       <textarea id="diary"
         placeholder="Was hat meinen Tag besonders gemacht?"
         style="min-height:180px"
         oninput="saveDay()"></textarea>
-    </section>
+    <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
 
-  <section id="finanzen" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button>
-    <h2>💜 Meine Finanzen</h2>
+  <section id="finanzen" class="panel hidden">
+    <h2 class="feature-heading">Meine Finanzen</h2>
     <p>Meine Einnahmen und Ausgaben</p>
     <div id="financeSummary"></div><div id="financeList"></div>
     <label>Art<select id="financeType"><option value="Ausgabe">Ausgabe</option><option value="Einnahme">Einnahme</option></select></label>
@@ -383,33 +386,37 @@ footer {
     <label>Betrag in €<input id="financeAmount" type="number" step="0.01" min="0" placeholder="0,00"></label>
     <button class="small-button" onclick="addFinance()">Buchung hinzufügen</button>
     <p class="note">Die Daten werden vorerst nur in diesem Browser gespeichert. Bitte noch keine vertraulichen Finanzdaten eingeben.</p>
-  </section>
+  <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
 
-  <section id="sparen" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button><h2>🏦 Meine beiden Sparbücher</h2>
+  <section id="sparen" class="panel hidden"><h2 class="feature-heading">Meine Sparbücher</h2>
     <div id="savingsList"></div>
     <label>Sparbuch<select id="savingAccount"><option value="0">Sparbuch 1</option><option value="1">Sparbuch 2</option></select></label>
     <label>Bezeichnung<input id="savingName" placeholder="z. B. Einzahlung"></label>
     <label>Betrag in € (Auszahlung mit Minus)<input id="savingAmount" type="number" step="0.01" placeholder="0,00"></label>
     <button class="small-button" onclick="addSaving()">Buchung speichern</button>
     <p class="note">Testversion: Bitte nur Beispieldaten verwenden.</p>
-  </section>
-  <section id="gewicht" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button>
-    <h2>⚖️ Mein Gewicht</h2>
+  <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
+  <section id="gewicht" class="panel hidden">
+    <h2 class="feature-heading">Mein Wohlfühlweg</h2>
     <p>Hier entstehen dein Gewichtstracker,
        deine Ziele und dein grafischer Verlauf.</p>
-  </section>
+  <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
 
 
 
 
 
-  <section id="notizen" class="panel hidden"><button class="small-button" onclick="showPage(&quot;kalender&quot;)">← Zur Startseite</button>
-    <h2>📝 Meine Notizen</h2>
+  <section id="notizen" class="panel hidden">
+    <h2 class="feature-heading">Meine Notizen</h2>
     <textarea id="generalNotes"
       placeholder="Hier ist Platz für meine Gedanken ..."
       style="min-height:220px"
       oninput="saveNotes()"></textarea>
-  </section>
+  <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
+</section>
 </main>
 
 <footer>🌸 Ein bisschen Zeit nur für mich 💜</footer>
