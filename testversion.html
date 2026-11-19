@@ -461,9 +461,38 @@ footer {
 </section>
 </main>
 
+
+<section class="panel" id="backupPanel"><h2>💜 Meine Datensicherung</h2><p style="font-size:13px;line-height:1.6">Hier kannst du eine Sicherheitskopie deiner Einträge auf deinem Gerät speichern. Die automatische Cloud-Sicherung und die Synchronisierung richten wir später gemeinsam ein.</p><div class="add-action"><button class="small-button" onclick="exportAlltagsBackup()">Sicherheitskopie speichern</button><button class="small-button" onclick="document.getElementById('backupFile').click()">Sicherheitskopie wiederherstellen</button></div><input type="file" id="backupFile" accept=".json,application/json" style="display:none" onchange="importAlltagsBackup(this)"><p style="font-size:11px;opacity:.75">Die Datei enthält auch private Einträge und gegebenenfalls Tagebuchfotos. Bewahre sie sicher auf. Eine lokale Kopie allein schützt nicht vor Verlust des Geräts.</p></section>
 <footer>🌸 Ein bisschen Zeit nur für mich 💜</footer>
 
 <script>
+
+function alltagsBackupKeys(){return Object.keys(localStorage).filter(k=>k.startsWith("alltagszauber-v3-")||k.startsWith("az-finance-")||k.startsWith("az-savings-")||k.startsWith("az-weight-"))}
+function exportAlltagsBackup(){
+ try{
+  const data={};for(const key of alltagsBackupKeys())data[key]=localStorage.getItem(key);
+  const payload={app:"Mein kleiner Alltagszauber",format:"alltagszauber-backup",version:1,createdAt:new Date().toISOString(),data};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="alltagszauber-sicherung-"+new Date().toISOString().slice(0,10)+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  alert("Die Sicherheitskopie wurde zum Herunterladen bereitgestellt. Bitte prüfe, ob die Datei gespeichert wurde.");
+ }catch(e){alert("Die Sicherheitskopie konnte nicht erstellt werden: "+e.message)}
+}
+async function importAlltagsBackup(input){
+ const file=input.files&&input.files[0];input.value="";if(!file)return;
+ try{
+  if(file.size>25*1024*1024)throw Error("Die Datei ist größer als 25 MB.");
+  const payload=JSON.parse(await file.text());
+  if(payload.format!=="alltagszauber-backup"||payload.version!==1||!payload.data||Array.isArray(payload.data)||typeof payload.data!=="object")throw Error("Dies ist keine passende Sicherheitskopie.");
+  const keys=Object.keys(payload.data);
+  if(!keys.length||keys.some(k=>!(k.startsWith("alltagszauber-v3-")||k.startsWith("az-finance-")||k.startsWith("az-savings-")||k.startsWith("az-weight-"))||typeof payload.data[k]!=="string"))throw Error("Die Sicherheitskopie enthält ungültige Daten.");
+  if(!confirm("Sicherheitskopie vom "+new Date(payload.createdAt).toLocaleString("de-DE")+" wiederherstellen? Die derzeit gespeicherten Einträge werden dadurch ersetzt. Bitte erst eine aktuelle Sicherheitskopie erstellen."))return;
+  const current=alltagsBackupKeys(),old={};current.forEach(k=>old[k]=localStorage.getItem(k));
+  try{current.forEach(k=>localStorage.removeItem(k));keys.forEach(k=>localStorage.setItem(k,payload.data[k]))}
+  catch(e){keys.forEach(k=>localStorage.removeItem(k));Object.entries(old).forEach(([k,v])=>localStorage.setItem(k,v));throw e}
+  alert("Die Daten wurden wiederhergestellt. Die App wird neu geladen.");location.reload();
+ }catch(e){alert("Wiederherstellung fehlgeschlagen: "+e.message)}
+}
+
 let currentDate=new Date();
 currentDate.setHours(12,0,0,0);
 let selectedMood="";
