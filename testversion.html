@@ -340,6 +340,7 @@ footer {
 <button class="area-tile" onclick="showPage('todos')">✅ <strong>Meine To-dos</strong><small>Was steht heute an?</small></button>
 <button class="area-tile" onclick="showPage('tagebuch')">📖 <strong>Mein Tagebuch</strong><small>Gedanken und Erinnerungen</small></button>
 <button class="area-tile" onclick="showPage('notizen')">📝 <strong>Meine Notizen</strong><small>Ideen und Gedanken</small></button>
+<button class="area-tile" onclick="showPage('datensicherung')">🔐 <strong>Meine Datensicherung</strong><small>Sichern und wiederherstellen</small></button>
 <button class="area-tile" onclick="showPage('finanzen')">💰 <strong>Meine Finanzen</strong><small>Einnahmen und Ausgaben</small></button>
 <button class="area-tile" onclick="showPage('sparen')">🏦 <strong>Meine Sparbücher</strong><small>Meine Ersparnisse</small></button>
 <button class="area-tile" style="grid-column:1 / -1" onclick="showPage('gewicht')">⚖️ <strong>Mein Wohlfühlweg</strong><small>Gewichtsentwicklung</small></button>
@@ -459,10 +460,11 @@ footer {
     </div>
     <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
 </section>
+<section class="panel" id="datensicherung" class="panel hidden><h2>💜 Meine Datensicherung</h2><p style="font-size:13px;line-height:1.6">Hier kannst du eine Sicherheitskopie deiner Einträge auf deinem Gerät speichern. Die automatische Cloud-Sicherung und die Synchronisierung richten wir später gemeinsam ein.</p><div class="add-action"><button class="small-button" onclick="exportAlltagsBackup()">Sicherheitskopie speichern</button><button class="small-button" onclick="document.getElementById('backupFile').click()">Sicherheitskopie wiederherstellen</button></div><input type="file" id="backupFile" accept=".json,application/json" style="display:none" onchange="importAlltagsBackup(this)"><p style="font-size:11px;opacity:.75">Die Datei enthält auch private Einträge und gegebenenfalls Tagebuchfotos. Bewahre sie sicher auf. Eine lokale Kopie allein schützt nicht vor Verlust des Geräts.</p><div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div></section>
 </main>
 
 
-<section class="panel" id="backupPanel"><h2>💜 Meine Datensicherung</h2><p style="font-size:13px;line-height:1.6">Hier kannst du eine Sicherheitskopie deiner Einträge auf deinem Gerät speichern. Die automatische Cloud-Sicherung und die Synchronisierung richten wir später gemeinsam ein.</p><div class="add-action"><button class="small-button" onclick="exportAlltagsBackup()">Sicherheitskopie speichern</button><button class="small-button" onclick="document.getElementById('backupFile').click()">Sicherheitskopie wiederherstellen</button></div><input type="file" id="backupFile" accept=".json,application/json" style="display:none" onchange="importAlltagsBackup(this)"><p style="font-size:11px;opacity:.75">Die Datei enthält auch private Einträge und gegebenenfalls Tagebuchfotos. Bewahre sie sicher auf. Eine lokale Kopie allein schützt nicht vor Verlust des Geräts.</p></section>
+
 <footer>🌸 Ein bisschen Zeit nur für mich 💜</footer>
 
 <script>
@@ -519,7 +521,7 @@ function dateKey(){
 function storageKey(){
   return "alltagszauber-v3-"+dateKey();
 }
-function showPage(page){["kalender","stimmung","termine","tagebuch","finanzen","sparen","gewicht","todos","wetter","notizen"].forEach(id=>document.getElementById(id).classList.toggle("hidden",id!==page));document.getElementById("bereiche").classList.toggle("hidden",page!=="kalender");window.scrollTo(0,0)}
+function showPage(page){["kalender","stimmung","termine","tagebuch","finanzen","sparen","gewicht","todos","wetter","notizen","datensicherung"].forEach(id=>document.getElementById(id).classList.toggle("hidden",id!==page));document.getElementById("bereiche").classList.toggle("hidden",page!=="kalender");window.scrollTo(0,0)}
 function showDiary(){showPage("tagebuch")}
 function changeDay(days){
   currentDate.setDate(currentDate.getDate()+days);
