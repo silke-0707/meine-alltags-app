@@ -245,9 +245,21 @@ footer {
 
 /* Finance annual overview and savings cards */
 .savings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:15px 0}.savings-card{border:1px solid #ded8ed;border-radius:21px;padding:15px 12px;background:linear-gradient(145deg,#e8f7f3,#f7f2fc);color:#655778;text-align:left;min-width:0}.savings-card:nth-child(even){background:linear-gradient(145deg,#f0e7fa,#eaf7f5)}.savings-card.active{outline:2px solid #a68bc6}.savings-card strong{display:block;font-size:17px;margin-top:8px;overflow-wrap:anywhere}.savings-card span{font-size:13px}.savings-total{text-align:center;padding:18px;background:#eaf7f4;border-radius:20px;margin:10px 0}.savings-total strong{display:block;font-size:25px;margin-top:5px}.annual-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.annual-card{border-radius:18px;background:#eaf7f4;padding:14px;text-align:center}.annual-card:nth-child(even){background:#f0e8f8}.annual-card strong{display:block;font-size:18px;margin-top:6px}.annual-bars{display:flex;align-items:flex-end;gap:5px;height:145px;margin:20px 0 5px}.annual-bar-pair{flex:1;display:flex;align-items:flex-end;gap:2px;height:100%}.annual-bar-pair div{flex:1;min-height:0;border-radius:5px 5px 0 0}.annual-labels{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;text-align:center;font-size:10px}.annual-table{width:100%;border-collapse:collapse;font-size:12px}.annual-table td,.annual-table th{padding:8px 3px;border-bottom:1px solid #e5ddea;text-align:right}.annual-table td:first-child,.annual-table th:first-child{text-align:left}@media(max-width:380px){.annual-table{font-size:10px}.savings-card strong{font-size:15px}}
+
+/* Persönliche Anmeldung */
+#azAuthGate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(145deg,#f8f0fc,#e7f8f5)}
+#azAuthGate[hidden]{display:none!important}
+.az-auth-card{width:min(420px,100%);padding:30px 24px;border-radius:24px;background:#fff;box-shadow:0 12px 45px #65577822;text-align:center}
+.az-auth-card h2{margin:4px 0 8px;color:#655778}.az-auth-card p{line-height:1.5}
+.az-auth-card input{width:100%;padding:12px;margin:7px 0;border:1px solid #d7c9e1;border-radius:12px;font-size:16px}
+.az-auth-card button,#azSignOut{padding:11px 18px;border:0;border-radius:14px;background:#dcefe9;color:#514365;font-weight:bold;cursor:pointer}
+#azAuthError{color:#a23c59;min-height:20px;font-size:13px}
+#azSignOut{display:none;margin:8px auto 0;font-size:12px}
 </style>
 </head>
 <body>
+<div id="azAuthGate" aria-label="Anmeldung"><div class="az-auth-card"><div style="font-size:38px">🌸</div><h2>Mein kleiner Alltagszauber</h2><p>Schön, dass du da bist. Melde dich mit deinem persönlichen Konto an.</p><form id="azAuthForm"><input id="azAuthEmail" type="email" autocomplete="username" placeholder="Deine E-Mail-Adresse" required><input id="azAuthPassword" type="password" autocomplete="current-password" placeholder="Dein Passwort" required><button id="azAuthButton" type="submit">Anmelden</button></form><p id="azAuthError" role="alert"></p><p style="font-size:12px;opacity:.75">Dein Passwort wird nicht in der App gespeichert.</p></div></div>
+
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
@@ -304,6 +316,7 @@ footer {
   </svg>
   <h1>Mein kleiner Alltagszauber</h1>
   <div class="subtitle">Mein Tag · Meine Gedanken · Mein Leben</div>
+  <button id="azSignOut" type="button" onclick="azLogout()">Abmelden</button>
 </header>
 
 <main>
@@ -468,6 +481,27 @@ footer {
 <footer>🌸 Ein bisschen Zeit nur für mich 💜</footer>
 
 <script>
+
+const AZ_SUPABASE_URL="https://ffxrfhgfmpbybovefvpc.supabase.co";
+const AZ_SUPABASE_KEY="sb_publishable_hUVWGVpCbrb_QSa-hEMbPA_kGtFLNPs";
+const AZ_AUTH_SESSION_KEY="az-auth-session-v1";
+let azAuthSession=null;
+function azShowAuthenticated(session){azAuthSession=session;document.getElementById("azAuthGate").hidden=true;document.getElementById("azSignOut").style.display="block";}
+function azShowLogin(message=""){azAuthSession=null;document.getElementById("azAuthGate").hidden=false;document.getElementById("azSignOut").style.display="none";document.getElementById("azAuthError").textContent=message;}
+async function azAuthRequest(endpoint,payload){
+ const response=await fetch(AZ_SUPABASE_URL+"/auth/v1/"+endpoint,{method:"POST",headers:{"apikey":AZ_SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(payload)});
+ const result=await response.json().catch(()=>({}));if(!response.ok)throw Error(result.msg||result.error_description||result.message||"Anmeldung fehlgeschlagen.");return result;
+}
+function azSaveSession(session){sessionStorage.setItem(AZ_AUTH_SESSION_KEY,JSON.stringify({...session,expires_at:Math.floor(Date.now()/1000)+(session.expires_in||3600)}));azShowAuthenticated(session)}
+function azLogout(){sessionStorage.removeItem(AZ_AUTH_SESSION_KEY);azShowLogin("Du bist abgemeldet.");document.getElementById("azAuthPassword").value=""}
+document.getElementById("azAuthForm").addEventListener("submit",async e=>{
+ e.preventDefault();const button=document.getElementById("azAuthButton");button.disabled=true;button.textContent="Einen Moment …";document.getElementById("azAuthError").textContent="";
+ try{const result=await azAuthRequest("token?grant_type=password",{email:document.getElementById("azAuthEmail").value.trim(),password:document.getElementById("azAuthPassword").value});azSaveSession(result);document.getElementById("azAuthPassword").value=""}
+ catch(err){document.getElementById("azAuthError").textContent="Anmeldung nicht möglich. Bitte prüfe E-Mail-Adresse und Passwort."}
+ finally{button.disabled=false;button.textContent="Anmelden"}
+});
+(async()=>{try{const saved=JSON.parse(sessionStorage.getItem(AZ_AUTH_SESSION_KEY)||"null");if(!saved||!saved.refresh_token)return;const session=saved.expires_at>Date.now()/1000+60?saved:await azAuthRequest("token?grant_type=refresh_token",{refresh_token:saved.refresh_token});azSaveSession(session)}catch(e){sessionStorage.removeItem(AZ_AUTH_SESSION_KEY);azShowLogin()}})();
+
 
 function alltagsBackupKeys(){return Object.keys(localStorage).filter(k=>k.startsWith("alltagszauber-v3-")||k.startsWith("az-finance-")||k.startsWith("az-savings-")||k.startsWith("az-weight-"))}
 function exportAlltagsBackup(){
