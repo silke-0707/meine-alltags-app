@@ -329,7 +329,7 @@ footer {
   <h1>Mein kleiner Alltagszauber</h1>
   <div class="subtitle">Mein Tag · Meine Gedanken · Mein Leben</div>
   <button id="azSignOut" type="button" onclick="azLogout()">Abmelden</button>
-  <div id="azSyncHeader" style="display:none;text-align:center;font-size:12px;color:#695a79;margin:9px auto 0;max-width:360px">☁️ Cloud: noch nicht geprüft · Version 22.11.26 C <button type="button" onclick="azSyncReady=false;azSyncStart()" style="border:0;border-radius:12px;padding:5px 9px;background:#eee4f4;color:#55466b">Prüfen</button></div>
+  <div id="azSyncHeader" style="display:none;text-align:center;font-size:12px;color:#695a79;margin:9px auto 0;max-width:360px">☁️ Cloud: noch nicht geprüft · Version 22.11.26 D <button type="button" onclick="azSyncReady=false;azSyncStart()" style="border:0;border-radius:12px;padding:5px 9px;background:#eee4f4;color:#55466b">Prüfen</button></div>
 </header>
 
 <main>
@@ -579,7 +579,7 @@ function alltagsBackupKeys(){return Object.keys(localStorage).filter(azIsDataKey
 const AZ_SYNC_EXTRAS=new Set(["az-test-events","az-test-todos","az-test-notes","az-notes-test-v1"]);
 function azIsDataKey(k){return k.startsWith("alltagszauber-v3-")||k.startsWith("az-finance-")||k.startsWith("az-savings-")||k.startsWith("az-weight-")||AZ_SYNC_EXTRAS.has(k)||k.startsWith("az-test-")}
 let azSyncBusy=false,azSyncReady=false,azSyncTimer=null,azSyncUser=null,azSyncOriginalSet=null,azSyncOriginalRemove=null,azSyncPending=new Set();
-function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;const header=document.getElementById("azSyncHeader");if(header){header.firstChild.textContent=(problem?"⚠️ ":"☁️ ")+message+" · Version 22.11.26 B ";}el.style.background=problem?"#fff1eb":"#f1eafa"}
+function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;const header=document.getElementById("azSyncHeader");if(header){header.firstChild.textContent=(problem?"⚠️ ":"☁️ ")+message+" · Version 22.11.26 D ";}el.style.background=problem?"#fff1eb":"#f1eafa"}
 
 function azSyncStop(){azSyncReady=false;azSyncUser=null;azSyncPending.clear();azSyncStatus("Nicht verbunden");if(azSyncTimer)clearTimeout(azSyncTimer);azSyncTimer=null}
 async function azSyncFetch(path,options={}){
@@ -602,7 +602,7 @@ async function azSyncFlush(){
    else await azSyncFetch("?on_conflict=user_id,data_key",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({user_id:azSyncUser,data_key:key,data_value:{value}})});
   }
  }catch(e){keys.forEach(k=>azSyncPending.add(k));console.warn("Synchronisierung fehlgeschlagen",e);azSyncStatus("Speichern fehlgeschlagen: "+e.message,true)}
- finally{azSyncBusy=false;if(!azSyncPending.size&&azSyncReady)azSyncStatus("Daten synchronisiert");if(azSyncPending.size&&azSyncReady)azSyncTimer=setTimeout(azSyncFlush,5000)}
+ finally{azSyncBusy=false;if(!azSyncPending.size&&azSyncReady)azSyncStatus("Cloud-Speichern abgeschlossen – bitte auf zweitem Gerät prüfen");if(azSyncPending.size&&azSyncReady)azSyncTimer=setTimeout(azSyncFlush,5000)}
 }
 async function azSyncStart(){
  if(azSyncReady||azSyncBusy||!azAuthSession?.access_token)return;
@@ -620,9 +620,9 @@ async function azSyncStart(){
    remote.add(row.data_key);
    const v=row.data_value;
    const value=v&&typeof v==="object"&&typeof v.value==="string"?v.value:typeof v==="string"?v:null;
-   if(value!==null)localStorage.setItem(row.data_key,value);
+   if(value!==null){const local=localStorage.getItem(row.data_key);if(local===null)localStorage.setItem(row.data_key,value);else if(local!==value){azSyncStatus("Unterschiedliche Daten auf Geräten – nichts überschrieben",true);continue;}}
   }
-  azSyncUser=identity.id;azSyncReady=true;azSyncStatus("Cloud verbunden");
+  azSyncUser=identity.id;azSyncReady=true;azSyncStatus("Cloud verbunden – Einträge noch nicht geräteübergreifend bestätigt");
   for(const key of alltagsBackupKeys())if(!remote.has(key))azSyncPending.add(key);
   if(azSyncPending.size)azSyncTimer=setTimeout(azSyncFlush,200);
   if(typeof loadDay==="function"){loadDay();if(typeof renderExtra==="function")renderExtra();if(typeof renderFinance==="function")renderFinance();if(typeof renderSavings==="function")renderSavings();if(typeof renderAnnualOverview==="function")renderAnnualOverview();if(typeof renderWeight==="function")renderWeight();if(typeof renderNotes==="function")renderNotes();}
