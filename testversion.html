@@ -329,7 +329,7 @@ footer {
   <h1>Mein kleiner Alltagszauber</h1>
   <div class="subtitle">Mein Tag · Meine Gedanken · Mein Leben</div>
   <button id="azSignOut" type="button" onclick="azLogout()">Abmelden</button>
-  <div id="azSyncHeader" style="display:none;text-align:center;font-size:12px;color:#695a79;margin:9px auto 0;max-width:360px">☁️ Cloud: noch nicht geprüft · Version 22.11.26 D <button type="button" onclick="azSyncReady=false;azSyncStart()" style="border:0;border-radius:12px;padding:5px 9px;background:#eee4f4;color:#55466b">Prüfen</button></div>
+  <div id="azSyncHeader" style="display:none;text-align:center;font-size:12px;color:#695a79;margin:9px auto 0;max-width:360px">☁️ Cloud: noch nicht geprüft · Version 22.11.26 E <button type="button" onclick="azSyncReady=false;azSyncStart()" style="border:0;border-radius:12px;padding:5px 9px;background:#eee4f4;color:#55466b">Prüfen</button></div>
 </header>
 
 <main>
@@ -402,7 +402,7 @@ footer {
     <div class="back-bottom"><button class="small-button" onclick="showPage('kalender')">← Zur Startseite</button></div>
     </section>
 <section id="todos" class="panel hidden feature-page"><h2 class="feature-heading">Meine To-dos</h2>
-      <div id="todoList"></div><div class="add-action"><button class="subtle-add-button" onclick="document.getElementById('todoForm').classList.toggle('hidden')">＋ Hinzufügen</button></div><div id="todoForm" class="hidden"><input id="todoName" placeholder="Neue Aufgabe"><button class="small-button" onclick="addTodo()">Speichern</button></div><div class="hidden">
+      <div id="todoList"></div><div class="add-action"><button class="subtle-add-button" onclick="document.getElementById('todoForm').classList.toggle('hidden')">＋ Hinzufügen</button></div><div id="todoForm" class="hidden"><input id="todoName" placeholder="Neue Aufgabe"><button class="small-button" onclick="addTodo()">Speichern</button><div id="todoSaveFeedback" role="status" style="font-size:13px;margin-top:8px;color:#625176"></div></div><div class="hidden">
       <textarea id="tasks"
         placeholder="Was möchte ich erledigen?"
         oninput="saveDay()"></textarea></div>
@@ -579,7 +579,7 @@ function alltagsBackupKeys(){return Object.keys(localStorage).filter(azIsDataKey
 const AZ_SYNC_EXTRAS=new Set(["az-test-events","az-test-todos","az-test-notes","az-notes-test-v1"]);
 function azIsDataKey(k){return k.startsWith("alltagszauber-v3-")||k.startsWith("az-finance-")||k.startsWith("az-savings-")||k.startsWith("az-weight-")||AZ_SYNC_EXTRAS.has(k)||k.startsWith("az-test-")}
 let azSyncBusy=false,azSyncReady=false,azSyncTimer=null,azSyncUser=null,azSyncOriginalSet=null,azSyncOriginalRemove=null,azSyncPending=new Set();
-function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;const header=document.getElementById("azSyncHeader");if(header){header.firstChild.textContent=(problem?"⚠️ ":"☁️ ")+message+" · Version 22.11.26 D ";}el.style.background=problem?"#fff1eb":"#f1eafa"}
+function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;const header=document.getElementById("azSyncHeader");if(header){header.firstChild.textContent=(problem?"⚠️ ":"☁️ ")+message+" · Version 22.11.26 E ";}el.style.background=problem?"#fff1eb":"#f1eafa"}
 
 function azSyncStop(){azSyncReady=false;azSyncUser=null;azSyncPending.clear();azSyncStatus("Nicht verbunden");if(azSyncTimer)clearTimeout(azSyncTimer);azSyncTimer=null}
 async function azSyncFetch(path,options={}){
@@ -873,7 +873,20 @@ function cancelEventEdit(){editingEventId=null;editingEventDay=null;["eventName"
 function addEvent(){const name=document.getElementById("eventName").value.trim();if(!name)return alert("Bitte Bezeichnung eingeben");const all=readExtra(EVTKEY),day=document.getElementById("eventDate").value||dateKey();const e={id:editingEventId||Date.now(),name,time:document.getElementById("eventTime").value,birthday:document.getElementById("eventBirthday").checked,year:document.getElementById("eventYear").value};if(editingEventId!==null)all[editingEventDay]=(all[editingEventDay]||[]).filter(x=>x.id!==editingEventId);(all[day] ||= []).push(e);saveExtra(EVTKEY,all);cancelEventEdit();renderExtra()}
 function eventsForDay(day){const all=readExtra(EVTKEY),found=[];Object.keys(all).forEach(sourceDay=>(all[sourceDay]||[]).forEach(e=>{if(sourceDay===day||(e.birthday&&sourceDay.slice(5)===day.slice(5)&&sourceDay<day))found.push({...e,sourceDay})}));return found.sort((a,b)=>Number(b.birthday)-Number(a.birthday)||(a.time||"").localeCompare(b.time||""))}
 function changeEvent(id,del,sourceDay){const all=readExtra(EVTKEY),day=sourceDay||dateKey(),e=(all[day]||[]).find(x=>x.id===id);if(!e)return;if(del){if(!confirm(e.birthday?"Diesen Geburtstag und seine jährlichen Wiederholungen löschen?":"Diesen Termin löschen?"))return;all[day]=all[day].filter(x=>x.id!==id);saveExtra(EVTKEY,all);renderExtra();return}editingEventId=id;editingEventDay=day;document.getElementById("eventName").value=e.name;document.getElementById("eventDate").value=day;document.getElementById("eventTime").value=e.time||"";document.getElementById("eventBirthday").checked=!!e.birthday;document.getElementById("eventYear").value=e.year||"";document.getElementById("eventForm").classList.remove("hidden");document.getElementById("eventName").focus()}
-function addTodo(){const n=document.getElementById("todoName"),name=n.value.trim();if(!name)return;const a=readExtra(TODOKEY);(a[dateKey()] ||= []).push({id:Date.now(),name,done:false});saveExtra(TODOKEY,a);n.value="";renderExtra()}
+function addTodo(){
+ const n=document.getElementById("todoName"),feedback=document.getElementById("todoSaveFeedback"),name=n.value.trim();
+ if(!name){feedback.textContent="Bitte zuerst eine Aufgabe eingeben.";return}
+ try{
+  const a=readExtra(TODOKEY),day=dateKey(),id=Date.now();
+  (a[day] ||= []).push({id,name,done:false});
+  saveExtra(TODOKEY,a);
+  const saved=readExtra(TODOKEY);
+  if(!(saved[day]||[]).some(x=>x.id===id))throw Error("Der Eintrag konnte nicht aus dem Gerätespeicher gelesen werden.");
+  n.value="";renderExtra();
+  feedback.textContent="✓ Auf diesem Gerät gespeichert für "+day.slice(8,10)+"."+day.slice(5,7)+"."+day.slice(2,4)+". Cloud-Abgleich wird separat geprüft.";
+  document.getElementById("todoForm").classList.remove("hidden");
+ }catch(e){feedback.textContent="⚠️ Speichern fehlgeschlagen: "+e.message}
+}
 function changeTodo(d,id,mode){const a=readExtra(TODOKEY),items=a[d]||[],x=items.find(x=>x.id===id);if(!x)return;if(mode==="done")x.done=!x.done;if(mode==="edit"){const n=prompt("Aufgabe bearbeiten",x.name);if(n!==null&&n.trim())x.name=n.trim()}if(mode==="delete")a[d]=items.filter(x=>x.id!==id);saveExtra(TODOKEY,a);renderExtra()}
 function renderExtra(){const dateInput=document.getElementById("eventDate");if(dateInput&&document.activeElement!==dateInput)dateInput.value=dateKey();const d=dateKey(),events=eventsForDay(d);
 document.getElementById("eventList").innerHTML=events.map(x=>'<div class="item"><span>'+(x.birthday?'🎂 ':'📌 ')+(x.time?'<strong class="event-time">'+safeExtra(x.time)+' Uhr</strong> · ':'')+safeExtra(x.name)+(x.birthday&&/^\d{4}$/.test(String(x.year||''))&&Number(x.year)<=Number(d.slice(0,4))?' · wird '+(Number(d.slice(0,4))-Number(x.year))+' Jahre':'')+'</span><button onclick="changeEvent('+x.id+',false,\''+x.sourceDay+'\')">✎</button><button onclick="changeEvent('+x.id+',true,\''+x.sourceDay+'\')">×</button></div>').join("");
