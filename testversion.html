@@ -329,7 +329,7 @@ footer {
   <h1>Mein kleiner Alltagszauber</h1>
   <div class="subtitle">Mein Tag · Meine Gedanken · Mein Leben</div>
   <button id="azSignOut" type="button" onclick="azLogout()">Abmelden</button>
-  <div id="azSyncHeader" style="display:none;text-align:center;font-size:12px;color:#695a79;margin:9px auto 0;max-width:360px">☁️ Cloud: noch nicht geprüft · Version 22.11.26 J <button type="button" onclick="azSyncReady=false;azSyncStart()" style="border:0;border-radius:12px;padding:5px 9px;background:#eee4f4;color:#55466b">Prüfen</button></div>
+  <div id="azSyncHeader" style="display:none;text-align:center;font-size:12px;color:#695a79;margin:9px auto 0;max-width:360px">☁️ Cloud: noch nicht geprüft · Version 22.11.26 K <button type="button" onclick="azSyncReady=false;azSyncStart()" style="border:0;border-radius:12px;padding:5px 9px;background:#eee4f4;color:#55466b">Prüfen</button></div>
 </header>
 
 <main>
@@ -579,7 +579,7 @@ function alltagsBackupKeys(){return Object.keys(localStorage).filter(azIsDataKey
 const AZ_SYNC_EXTRAS=new Set(["az-test-events","az-test-todos","az-test-notes","az-notes-test-v1"]);
 function azIsDataKey(k){return k.startsWith("alltagszauber-v3-")||k.startsWith("az-finance-")||k.startsWith("az-savings-")||k.startsWith("az-weight-")||AZ_SYNC_EXTRAS.has(k)||k.startsWith("az-test-")}
 let azSyncBusy=false,azSyncReady=false,azSyncTimer=null,azSyncUser=null,azSyncOriginalSet=null,azSyncOriginalRemove=null,azSyncPending=new Set();
-function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;const header=document.getElementById("azSyncHeader");if(header){header.firstChild.textContent=(problem?"⚠️ ":"☁️ ")+message+" · Version 22.11.26 J ";}el.style.background=problem?"#fff1eb":"#f1eafa"}
+function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;const header=document.getElementById("azSyncHeader");if(header){header.firstChild.textContent=(problem?"⚠️ ":"☁️ ")+message+" · Version 22.11.26 K ";}el.style.background=problem?"#fff1eb":"#f1eafa"}
 
 function azSyncStop(){azSyncReady=false;azSyncUser=null;azSyncPending.clear();azSyncStatus("Nicht verbunden");if(azSyncTimer)clearTimeout(azSyncTimer);azSyncTimer=null}
 async function azSyncFetch(path,options={}){
@@ -706,7 +706,7 @@ async function azReconcileTodos(){
 azSyncOriginalSet=Storage.prototype.setItem;azSyncOriginalRemove=Storage.prototype.removeItem;
 Storage.prototype.setItem=function(k,v){azSyncOriginalSet.call(this,k,v);if(this===localStorage)azSyncSchedule(String(k))};
 Storage.prototype.removeItem=function(k){azSyncOriginalRemove.call(this,k);if(this===localStorage)azSyncSchedule(String(k))};
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&azSyncReady&&!azSyncBusy){azSyncReady=false;azSyncStart()}});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&azAuthSession?.access_token&&!azSyncBusy){azSyncReady=false;azSyncStart()}});
 function exportAlltagsBackup(){
  try{
   const data={};for(const key of alltagsBackupKeys())data[key]=localStorage.getItem(key);
@@ -960,6 +960,7 @@ function addTodo(){
   n.value="";renderExtra();
   feedback.textContent="✓ Auf diesem Gerät gespeichert für "+day.slice(8,10)+"."+day.slice(5,7)+"."+day.slice(2,4)+". Cloud-Abgleich wird separat geprüft.";
   document.getElementById("todoForm").classList.remove("hidden");
+  azReconcileTodos();
  }catch(e){feedback.textContent="⚠️ Speichern fehlgeschlagen: "+e.message}
 }
 function changeTodo(d,id,mode){const a=readExtra(TODOKEY),items=Array.isArray(a[d])?a[d]:[],x=items.find(x=>x.id===id);if(!x)return;if(mode==="done")x.done=!x.done;if(mode==="edit"){const n=prompt("Aufgabe bearbeiten",x.name);if(n!==null&&n.trim())x.name=n.trim()}if(mode==="delete")a[d]=items.filter(x=>x.id!==id);saveExtra(TODOKEY,a);renderExtra()}
