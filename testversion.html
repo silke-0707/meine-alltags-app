@@ -329,7 +329,7 @@ footer {
   <h1>Mein kleiner Alltagszauber</h1>
   <div class="subtitle">Mein Tag · Meine Gedanken · Mein Leben</div>
   <button id="azSignOut" type="button" onclick="azLogout()">Abmelden</button>
-  <div id="azSyncHeader" style="display:none;text-align:center;font-size:12px;color:#695a79;margin:9px auto 0;max-width:360px">☁️ Cloud: noch nicht geprüft · Version 22.11.26 K <button type="button" onclick="azSyncReady=false;azSyncStart()" style="border:0;border-radius:12px;padding:5px 9px;background:#eee4f4;color:#55466b">Prüfen</button></div>
+  <div id="azSyncHeader" style="display:none;text-align:center;font-size:12px;color:#695a79;margin:9px auto 0;max-width:360px">☁️ Cloud: noch nicht geprüft · Version 22.11.26 L <button type="button" onclick="azSyncReady=false;azSyncStart()" style="border:0;border-radius:12px;padding:5px 9px;background:#eee4f4;color:#55466b">Prüfen</button></div>
 </header>
 
 <main>
@@ -579,12 +579,24 @@ function alltagsBackupKeys(){return Object.keys(localStorage).filter(azIsDataKey
 const AZ_SYNC_EXTRAS=new Set(["az-test-events","az-test-todos","az-test-notes","az-notes-test-v1"]);
 function azIsDataKey(k){return k.startsWith("alltagszauber-v3-")||k.startsWith("az-finance-")||k.startsWith("az-savings-")||k.startsWith("az-weight-")||AZ_SYNC_EXTRAS.has(k)||k.startsWith("az-test-")}
 let azSyncBusy=false,azSyncReady=false,azSyncTimer=null,azSyncUser=null,azSyncOriginalSet=null,azSyncOriginalRemove=null,azSyncPending=new Set();
-function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;const header=document.getElementById("azSyncHeader");if(header){header.firstChild.textContent=(problem?"⚠️ ":"☁️ ")+message+" · Version 22.11.26 K ";}el.style.background=problem?"#fff1eb":"#f1eafa"}
+function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;const header=document.getElementById("azSyncHeader");if(header){header.firstChild.textContent=(problem?"⚠️ ":"☁️ ")+message+" · Version 22.11.26 L ";}el.style.background=problem?"#fff1eb":"#f1eafa"}
 
 function azSyncStop(){azSyncReady=false;azSyncUser=null;azSyncPending.clear();azSyncStatus("Nicht verbunden");if(azSyncTimer)clearTimeout(azSyncTimer);azSyncTimer=null}
+let azTokenRefreshPromise=null;
+async function azEnsureFreshSession(){
+ if(!azAuthSession?.access_token)throw Error("Bitte anmelden.");
+ if(azAuthSession.expires_at&&azAuthSession.expires_at>Date.now()/1000+90)return azAuthSession.access_token;
+ if(!azAuthSession.refresh_token)throw Error("Anmeldung abgelaufen. Bitte erneut anmelden.");
+ if(!azTokenRefreshPromise)azTokenRefreshPromise=(async()=>{
+  const refreshed=await azAuthRequest("token?grant_type=refresh_token",{refresh_token:azAuthSession.refresh_token});
+  azAuthSession={...azAuthSession,...refreshed,expires_at:Math.floor(Date.now()/1000)+(refreshed.expires_in||3600)};
+  localStorage.setItem(AZ_AUTH_SESSION_KEY,JSON.stringify(azAuthSession));
+  return azAuthSession.access_token;
+ })().finally(()=>{azTokenRefreshPromise=null});
+ return azTokenRefreshPromise;
+}
 async function azSyncFetch(path,options={}){
- const token=azAuthSession?.access_token;
- if(!token)throw Error("Keine Anmeldung vorhanden.");
+ const token=await azEnsureFreshSession();
  const res=await fetch(AZ_SUPABASE_URL+"/rest/v1/alltagszauber_data"+path,{...options,headers:{"apikey":AZ_SUPABASE_KEY,"Authorization":"Bearer "+token,"Content-Type":"application/json",...(options.headers||{})}});
  if(!res.ok)throw Error("Cloud-Speicherung: HTTP "+res.status+" "+(await res.text()).slice(0,180));
  const body=await res.text();if(!body.trim())return null;try{return JSON.parse(body)}catch(e){throw Error("Ungültige Cloud-Antwort (HTTP "+res.status+")")}
@@ -635,7 +647,8 @@ async function azSyncStart(){
  if(azSyncReady||azSyncBusy||!azAuthSession?.access_token)return;
  azSyncBusy=true;azSyncStatus("Verbinde mit Cloud …");
  try{
-  const user=await fetch(AZ_SUPABASE_URL+"/auth/v1/user",{headers:{"apikey":AZ_SUPABASE_KEY,"Authorization":"Bearer "+azAuthSession.access_token}});
+  const token=await azEnsureFreshSession();
+  const user=await fetch(AZ_SUPABASE_URL+"/auth/v1/user",{headers:{"apikey":AZ_SUPABASE_KEY,"Authorization":"Bearer "+token}});
   if(!user.ok)throw Error("Anmeldung nicht bestätigt");
   const identity=await user.json();if(!identity.id)throw Error("Benutzerkennung fehlt");
   const rows=await azSyncFetch("?select=data_key,data_value&user_id=eq."+encodeURIComponent(identity.id));
@@ -668,7 +681,8 @@ async function azReconcileTodos(){
  feedback.textContent="Vergleiche Tablet/Handy mit Cloud …";
  try{
   if(!azAuthSession?.access_token)throw Error("Bitte zuerst anmelden.");
-  const u=await fetch(AZ_SUPABASE_URL+"/auth/v1/user",{headers:{"apikey":AZ_SUPABASE_KEY,"Authorization":"Bearer "+azAuthSession.access_token}});
+  const token=await azEnsureFreshSession();
+  const u=await fetch(AZ_SUPABASE_URL+"/auth/v1/user",{headers:{"apikey":AZ_SUPABASE_KEY,"Authorization":"Bearer "+token}});
   if(!u.ok)throw Error("Anmeldung nicht bestätigt (HTTP "+u.status+").");
   const identity=await u.json();
   const key="az-test-todos";
