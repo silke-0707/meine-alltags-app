@@ -500,7 +500,7 @@ const AZ_SUPABASE_KEY="sb_publishable_hUVWGVpCbrb_QSa-hEMbPA_kGtFLNPs";
 const AZ_AUTH_SESSION_KEY="az-auth-session-v1";
 let azAuthSession=null;
 let azRecoveryToken=null;
-function azShowAuthenticated(session){azAuthSession=session;document.getElementById("azAuthGate").hidden=true;document.getElementById("azSignOut").style.display="block";}
+function azShowAuthenticated(session){azAuthSession=session;document.getElementById("azAuthGate").hidden=true;document.getElementById("azSignOut").style.display="block";azSyncStart();}
 function azShowLogin(message=""){azAuthSession=null;document.getElementById("azAuthGate").hidden=false;document.getElementById("azSignOut").style.display="none";document.getElementById("azAuthError").textContent=message;}
 async function azAuthRequest(endpoint,payload){
  const response=await fetch(AZ_SUPABASE_URL+"/auth/v1/"+endpoint,{method:"POST",headers:{"apikey":AZ_SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(payload)});
@@ -563,7 +563,7 @@ document.getElementById("azResetForm").addEventListener("submit",async e=>{
   error.textContent="Supabase meldet beim Speichern: "+(err.message||"Netzwerkfehler")+". Bitte keinen neuen Link anfordern und mir nur diese Fehlermeldung mitteilen – niemals dein Passwort oder den Link.";
  }finally{button.disabled=false;}
 });
-function azLogout(){localStorage.removeItem(AZ_AUTH_SESSION_KEY);sessionStorage.removeItem(AZ_AUTH_SESSION_KEY);azShowLogin("Du bist abgemeldet.");document.getElementById("azAuthPassword").value=""}
+function azLogout(){azSyncStop();localStorage.removeItem(AZ_AUTH_SESSION_KEY);sessionStorage.removeItem(AZ_AUTH_SESSION_KEY);azShowLogin("Du bist abgemeldet.");document.getElementById("azAuthPassword").value=""}
 document.getElementById("azAuthForm").addEventListener("submit",async e=>{
  e.preventDefault();const button=document.getElementById("azAuthButton");button.disabled=true;button.textContent="Einen Moment …";document.getElementById("azAuthError").textContent="";
  try{const result=await azAuthRequest("token?grant_type=password",{email:document.getElementById("azAuthEmail").value.trim(),password:document.getElementById("azAuthPassword").value});azSaveSession(result);document.getElementById("azAuthPassword").value=""}
@@ -573,7 +573,63 @@ document.getElementById("azAuthForm").addEventListener("submit",async e=>{
 (async()=>{try{const params=new URLSearchParams(location.hash.slice(1));if(params.get("type")==="recovery"&&params.get("access_token")){azRecoveryToken=params.get("access_token");azShowLogin();azResetMode(true);history.replaceState(null,"",location.pathname+location.search);return;}if(params.get("error")){const reason=params.get("error_code")||"";const message=reason==="otp_expired"?"Der Wiederherstellungslink ist abgelaufen oder wurde bereits verwendet. Bitte fordere später genau einen neuen Link an.":reason==="access_denied"?"Supabase hat diesen Wiederherstellungslink abgelehnt. Bitte fordere später einen neuen an.":"Der Wiederherstellungslink konnte nicht bestätigt werden. Bitte fordere später einen neuen an.";azShowLogin(message);history.replaceState(null,"",location.pathname+location.search);return;}const saved=JSON.parse(localStorage.getItem(AZ_AUTH_SESSION_KEY)||sessionStorage.getItem(AZ_AUTH_SESSION_KEY)||"null");if(!saved||!saved.refresh_token)return;const session=saved.expires_at>Date.now()/1000+60?saved:await azAuthRequest("token?grant_type=refresh_token",{refresh_token:saved.refresh_token});azSaveSession(session)}catch(e){localStorage.removeItem(AZ_AUTH_SESSION_KEY);sessionStorage.removeItem(AZ_AUTH_SESSION_KEY);azShowLogin()}})();
 
 
-function alltagsBackupKeys(){return Object.keys(localStorage).filter(k=>k.startsWith("alltagszauber-v3-")||k.startsWith("az-finance-")||k.startsWith("az-savings-")||k.startsWith("az-weight-"))}
+function alltagsBackupKeys(){return Object.keys(localStorage).filter(azIsDataKey)}
+// Synchronisierung: jeder gespeicherte Bereich bekommt seinen eigenen Cloud-Datensatz.
+const AZ_SYNC_EXTRAS=new Set(["az-test-events","az-test-todos","az-test-notes","az-notes-test-v1"]);
+function azIsDataKey(k){return k.startsWith("alltagszauber-v3-")||k.startsWith("az-finance-")||k.startsWith("az-savings-")||k.startsWith("az-weight-")||AZ_SYNC_EXTRAS.has(k)||k.startsWith("az-test-")}
+let azSyncBusy=false,azSyncReady=false,azSyncTimer=null,azSyncUser=null,azSyncOriginalSet=null,azSyncOriginalRemove=null,azSyncPending=new Set();
+function azSyncStop(){azSyncReady=false;azSyncUser=null;azSyncPending.clear();if(azSyncTimer)clearTimeout(azSyncTimer);azSyncTimer=null}
+async function azSyncFetch(path,options={}){
+ const token=azAuthSession?.access_token;
+ if(!token)throw Error("Keine Anmeldung vorhanden.");
+ const res=await fetch(AZ_SUPABASE_URL+"/rest/v1/alltagszauber_data"+path,{...options,headers:{"apikey":AZ_SUPABASE_KEY,"Authorization":"Bearer "+token,"Content-Type":"application/json",...(options.headers||{})}});
+ if(!res.ok)throw Error("Cloud-Speicherung: HTTP "+res.status+" "+(await res.text()).slice(0,180));
+ return res.status===204?null:res.json();
+}
+function azSyncSchedule(key){if(!azSyncReady||!azIsDataKey(key))return;azSyncPending.add(key);if(azSyncTimer)clearTimeout(azSyncTimer);azSyncTimer=setTimeout(azSyncFlush,600)}
+async function azSyncFlush(){
+ if(azSyncBusy||!azSyncReady)return;
+ azSyncBusy=true;
+ const keys=[...azSyncPending];azSyncPending.clear();
+ try{
+  for(const key of keys){
+   if(!azSyncReady)return;
+   const value=localStorage.getItem(key);
+   if(value===null){await azSyncFetch("?user_id=eq."+encodeURIComponent(azSyncUser)+"&data_key=eq."+encodeURIComponent(key),{method:"DELETE"});}
+   else await azSyncFetch("?on_conflict=user_id,data_key",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({user_id:azSyncUser,data_key:key,data_value:{value}})});
+  }
+ }catch(e){keys.forEach(k=>azSyncPending.add(k));console.warn("Synchronisierung fehlgeschlagen",e)}
+ finally{azSyncBusy=false;if(azSyncPending.size&&azSyncReady)azSyncTimer=setTimeout(azSyncFlush,5000)}
+}
+async function azSyncStart(){
+ if(azSyncReady||azSyncBusy||!azAuthSession?.access_token)return;
+ azSyncBusy=true;
+ try{
+  const user=await fetch(AZ_SUPABASE_URL+"/auth/v1/user",{headers:{"apikey":AZ_SUPABASE_KEY,"Authorization":"Bearer "+azAuthSession.access_token}});
+  if(!user.ok)throw Error("Anmeldung nicht bestätigt");
+  const identity=await user.json();if(!identity.id)throw Error("Benutzerkennung fehlt");
+  const rows=await azSyncFetch("?select=data_key,data_value&user_id=eq."+encodeURIComponent(identity.id));
+  // Nie lokale Einträge stillschweigend überschreiben: bestehende Cloud-Daten zuerst übernehmen,
+  // lokale Einträge nur dann hochladen, wenn es in der Cloud noch keinen Wert gibt.
+  const remote=new Set();
+  for(const row of rows){
+   if(!azIsDataKey(row.data_key))continue;
+   remote.add(row.data_key);
+   const v=row.data_value;
+   const value=v&&typeof v==="object"&&typeof v.value==="string"?v.value:typeof v==="string"?v:null;
+   if(value!==null)localStorage.setItem(row.data_key,value);
+  }
+  azSyncUser=identity.id;azSyncReady=true;
+  for(const key of alltagsBackupKeys())if(!remote.has(key))azSyncPending.add(key);
+  if(azSyncPending.size)azSyncTimer=setTimeout(azSyncFlush,200);
+  if(typeof loadDay==="function"){loadDay();if(typeof renderExtra==="function")renderExtra();if(typeof renderFinance==="function")renderFinance();if(typeof renderSavings==="function")renderSavings();if(typeof renderAnnualOverview==="function")renderAnnualOverview();if(typeof renderWeight==="function")renderWeight();if(typeof renderNotes==="function")renderNotes();}
+ }catch(e){console.warn("Cloud-Abgleich derzeit nicht verfügbar",e)}
+ finally{azSyncBusy=false}
+}
+azSyncOriginalSet=Storage.prototype.setItem;azSyncOriginalRemove=Storage.prototype.removeItem;
+Storage.prototype.setItem=function(k,v){azSyncOriginalSet.call(this,k,v);if(this===localStorage)azSyncSchedule(String(k))};
+Storage.prototype.removeItem=function(k){azSyncOriginalRemove.call(this,k);if(this===localStorage)azSyncSchedule(String(k))};
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&azSyncReady&&!azSyncBusy){azSyncReady=false;azSyncStart()}});
 function exportAlltagsBackup(){
  try{
   const data={};for(const key of alltagsBackupKeys())data[key]=localStorage.getItem(key);
