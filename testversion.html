@@ -578,7 +578,9 @@ function alltagsBackupKeys(){return Object.keys(localStorage).filter(azIsDataKey
 const AZ_SYNC_EXTRAS=new Set(["az-test-events","az-test-todos","az-test-notes","az-notes-test-v1"]);
 function azIsDataKey(k){return k.startsWith("alltagszauber-v3-")||k.startsWith("az-finance-")||k.startsWith("az-savings-")||k.startsWith("az-weight-")||AZ_SYNC_EXTRAS.has(k)||k.startsWith("az-test-")}
 let azSyncBusy=false,azSyncReady=false,azSyncTimer=null,azSyncUser=null,azSyncOriginalSet=null,azSyncOriginalRemove=null,azSyncPending=new Set();
-function azSyncStop(){azSyncReady=false;azSyncUser=null;azSyncPending.clear();if(azSyncTimer)clearTimeout(azSyncTimer);azSyncTimer=null}
+function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;el.style.background=problem?"#fff1eb":"#f1eafa"}
+
+function azSyncStop(){azSyncReady=false;azSyncUser=null;azSyncPending.clear();azSyncStatus("Nicht verbunden");if(azSyncTimer)clearTimeout(azSyncTimer);azSyncTimer=null}
 async function azSyncFetch(path,options={}){
  const token=azAuthSession?.access_token;
  if(!token)throw Error("Keine Anmeldung vorhanden.");
@@ -589,7 +591,7 @@ async function azSyncFetch(path,options={}){
 function azSyncSchedule(key){if(!azSyncReady||!azIsDataKey(key))return;azSyncPending.add(key);if(azSyncTimer)clearTimeout(azSyncTimer);azSyncTimer=setTimeout(azSyncFlush,600)}
 async function azSyncFlush(){
  if(azSyncBusy||!azSyncReady)return;
- azSyncBusy=true;
+ azSyncBusy=true;azSyncStatus("Speichere Änderungen …");
  const keys=[...azSyncPending];azSyncPending.clear();
  try{
   for(const key of keys){
@@ -598,12 +600,12 @@ async function azSyncFlush(){
    if(value===null){await azSyncFetch("?user_id=eq."+encodeURIComponent(azSyncUser)+"&data_key=eq."+encodeURIComponent(key),{method:"DELETE"});}
    else await azSyncFetch("?on_conflict=user_id,data_key",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({user_id:azSyncUser,data_key:key,data_value:{value}})});
   }
- }catch(e){keys.forEach(k=>azSyncPending.add(k));console.warn("Synchronisierung fehlgeschlagen",e)}
- finally{azSyncBusy=false;if(azSyncPending.size&&azSyncReady)azSyncTimer=setTimeout(azSyncFlush,5000)}
+ }catch(e){keys.forEach(k=>azSyncPending.add(k));console.warn("Synchronisierung fehlgeschlagen",e);azSyncStatus("Speichern fehlgeschlagen: "+e.message,true)}
+ finally{azSyncBusy=false;if(!azSyncPending.size&&azSyncReady)azSyncStatus("Daten synchronisiert");if(azSyncPending.size&&azSyncReady)azSyncTimer=setTimeout(azSyncFlush,5000)}
 }
 async function azSyncStart(){
  if(azSyncReady||azSyncBusy||!azAuthSession?.access_token)return;
- azSyncBusy=true;
+ azSyncBusy=true;azSyncStatus("Verbinde mit Cloud …");
  try{
   const user=await fetch(AZ_SUPABASE_URL+"/auth/v1/user",{headers:{"apikey":AZ_SUPABASE_KEY,"Authorization":"Bearer "+azAuthSession.access_token}});
   if(!user.ok)throw Error("Anmeldung nicht bestätigt");
@@ -619,11 +621,11 @@ async function azSyncStart(){
    const value=v&&typeof v==="object"&&typeof v.value==="string"?v.value:typeof v==="string"?v:null;
    if(value!==null)localStorage.setItem(row.data_key,value);
   }
-  azSyncUser=identity.id;azSyncReady=true;
+  azSyncUser=identity.id;azSyncReady=true;azSyncStatus("Cloud verbunden");
   for(const key of alltagsBackupKeys())if(!remote.has(key))azSyncPending.add(key);
   if(azSyncPending.size)azSyncTimer=setTimeout(azSyncFlush,200);
   if(typeof loadDay==="function"){loadDay();if(typeof renderExtra==="function")renderExtra();if(typeof renderFinance==="function")renderFinance();if(typeof renderSavings==="function")renderSavings();if(typeof renderAnnualOverview==="function")renderAnnualOverview();if(typeof renderWeight==="function")renderWeight();if(typeof renderNotes==="function")renderNotes();}
- }catch(e){console.warn("Cloud-Abgleich derzeit nicht verfügbar",e)}
+ }catch(e){console.warn("Cloud-Abgleich derzeit nicht verfügbar",e);azSyncStatus("Cloud nicht verbunden: "+e.message,true)}
  finally{azSyncBusy=false}
 }
 azSyncOriginalSet=Storage.prototype.setItem;azSyncOriginalRemove=Storage.prototype.removeItem;
