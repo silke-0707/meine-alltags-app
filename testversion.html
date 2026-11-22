@@ -329,6 +329,7 @@ footer {
   <h1>Mein kleiner Alltagszauber</h1>
   <div class="subtitle">Mein Tag · Meine Gedanken · Mein Leben</div>
   <button id="azSignOut" type="button" onclick="azLogout()">Abmelden</button>
+  <div id="azSyncHeader" style="display:none;text-align:center;font-size:12px;color:#695a79;margin:9px auto 0;max-width:360px">☁️ Cloud: noch nicht geprüft · Version 22.11.26 B <button type="button" onclick="azSyncReady=false;azSyncStart()" style="border:0;border-radius:12px;padding:5px 9px;background:#eee4f4;color:#55466b">Prüfen</button></div>
 </header>
 
 <main>
@@ -500,8 +501,8 @@ const AZ_SUPABASE_KEY="sb_publishable_hUVWGVpCbrb_QSa-hEMbPA_kGtFLNPs";
 const AZ_AUTH_SESSION_KEY="az-auth-session-v1";
 let azAuthSession=null;
 let azRecoveryToken=null;
-function azShowAuthenticated(session){azAuthSession=session;document.getElementById("azAuthGate").hidden=true;document.getElementById("azSignOut").style.display="block";azSyncStart();}
-function azShowLogin(message=""){azAuthSession=null;document.getElementById("azAuthGate").hidden=false;document.getElementById("azSignOut").style.display="none";document.getElementById("azAuthError").textContent=message;}
+function azShowAuthenticated(session){azAuthSession=session;document.getElementById("azAuthGate").hidden=true;document.getElementById("azSignOut").style.display="block";document.getElementById("azSyncHeader").style.display="block";azSyncStart();}
+function azShowLogin(message=""){azAuthSession=null;document.getElementById("azAuthGate").hidden=false;document.getElementById("azSignOut").style.display="none";document.getElementById("azSyncHeader").style.display="none";document.getElementById("azAuthError").textContent=message;}
 async function azAuthRequest(endpoint,payload){
  const response=await fetch(AZ_SUPABASE_URL+"/auth/v1/"+endpoint,{method:"POST",headers:{"apikey":AZ_SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(payload)});
  const result=await response.json().catch(()=>({}));if(!response.ok)throw Error(result.msg||result.error_description||result.message||"Anmeldung fehlgeschlagen.");return result;
@@ -578,7 +579,7 @@ function alltagsBackupKeys(){return Object.keys(localStorage).filter(azIsDataKey
 const AZ_SYNC_EXTRAS=new Set(["az-test-events","az-test-todos","az-test-notes","az-notes-test-v1"]);
 function azIsDataKey(k){return k.startsWith("alltagszauber-v3-")||k.startsWith("az-finance-")||k.startsWith("az-savings-")||k.startsWith("az-weight-")||AZ_SYNC_EXTRAS.has(k)||k.startsWith("az-test-")}
 let azSyncBusy=false,azSyncReady=false,azSyncTimer=null,azSyncUser=null,azSyncOriginalSet=null,azSyncOriginalRemove=null,azSyncPending=new Set();
-function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;el.style.background=problem?"#fff1eb":"#f1eafa"}
+function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;const header=document.getElementById("azSyncHeader");if(header){header.firstChild.textContent=(problem?"⚠️ ":"☁️ ")+message+" · Version 22.11.26 B ";}el.style.background=problem?"#fff1eb":"#f1eafa"}
 
 function azSyncStop(){azSyncReady=false;azSyncUser=null;azSyncPending.clear();azSyncStatus("Nicht verbunden");if(azSyncTimer)clearTimeout(azSyncTimer);azSyncTimer=null}
 async function azSyncFetch(path,options={}){
