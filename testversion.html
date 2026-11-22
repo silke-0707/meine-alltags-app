@@ -329,7 +329,7 @@ footer {
   <h1>Mein kleiner Alltagszauber</h1>
   <div class="subtitle">Mein Tag · Meine Gedanken · Mein Leben</div>
   <button id="azSignOut" type="button" onclick="azLogout()">Abmelden</button>
-  <div id="azSyncHeader" style="display:none;text-align:center;font-size:12px;color:#695a79;margin:9px auto 0;max-width:360px">☁️ Cloud: noch nicht geprüft · Version 22.11.26 H <button type="button" onclick="azSyncReady=false;azSyncStart()" style="border:0;border-radius:12px;padding:5px 9px;background:#eee4f4;color:#55466b">Prüfen</button></div>
+  <div id="azSyncHeader" style="display:none;text-align:center;font-size:12px;color:#695a79;margin:9px auto 0;max-width:360px">☁️ Cloud: noch nicht geprüft · Version 22.11.26 I <button type="button" onclick="azSyncReady=false;azSyncStart()" style="border:0;border-radius:12px;padding:5px 9px;background:#eee4f4;color:#55466b">Prüfen</button></div>
 </header>
 
 <main>
@@ -579,7 +579,7 @@ function alltagsBackupKeys(){return Object.keys(localStorage).filter(azIsDataKey
 const AZ_SYNC_EXTRAS=new Set(["az-test-events","az-test-todos","az-test-notes","az-notes-test-v1"]);
 function azIsDataKey(k){return k.startsWith("alltagszauber-v3-")||k.startsWith("az-finance-")||k.startsWith("az-savings-")||k.startsWith("az-weight-")||AZ_SYNC_EXTRAS.has(k)||k.startsWith("az-test-")}
 let azSyncBusy=false,azSyncReady=false,azSyncTimer=null,azSyncUser=null,azSyncOriginalSet=null,azSyncOriginalRemove=null,azSyncPending=new Set();
-function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;const header=document.getElementById("azSyncHeader");if(header){header.firstChild.textContent=(problem?"⚠️ ":"☁️ ")+message+" · Version 22.11.26 H ";}el.style.background=problem?"#fff1eb":"#f1eafa"}
+function azSyncStatus(message,problem=false){let el=document.getElementById("azSyncStatus");if(!el){el=document.createElement("div");el.id="azSyncStatus";el.style.cssText="position:fixed;bottom:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:14px;background:#f1eafa;color:#594875;box-shadow:0 2px 12px #0002;font:12px sans-serif;max-width:260px";document.body.appendChild(el)}el.textContent=(problem?"⚠️ ":"☁️ ")+message;const header=document.getElementById("azSyncHeader");if(header){header.firstChild.textContent=(problem?"⚠️ ":"☁️ ")+message+" · Version 22.11.26 I ";}el.style.background=problem?"#fff1eb":"#f1eafa"}
 
 function azSyncStop(){azSyncReady=false;azSyncUser=null;azSyncPending.clear();azSyncStatus("Nicht verbunden");if(azSyncTimer)clearTimeout(azSyncTimer);azSyncTimer=null}
 async function azSyncFetch(path,options={}){
@@ -588,6 +588,17 @@ async function azSyncFetch(path,options={}){
  const res=await fetch(AZ_SUPABASE_URL+"/rest/v1/alltagszauber_data"+path,{...options,headers:{"apikey":AZ_SUPABASE_KEY,"Authorization":"Bearer "+token,"Content-Type":"application/json",...(options.headers||{})}});
  if(!res.ok)throw Error("Cloud-Speicherung: HTTP "+res.status+" "+(await res.text()).slice(0,180));
  const body=await res.text();if(!body.trim())return null;try{return JSON.parse(body)}catch(e){throw Error("Ungültige Cloud-Antwort (HTTP "+res.status+")")}
+}
+function azCloudValue(raw){
+ let value=raw;
+ for(let i=0;i<3;i++){
+  if(typeof value==="string"){
+   try{value=JSON.parse(value)}catch(e){return value}
+  }else if(value&&typeof value==="object"&&!Array.isArray(value)&&Object.prototype.hasOwnProperty.call(value,"value")){
+   value=value.value;
+  }else break;
+ }
+ return typeof value==="string"?value:JSON.stringify(value);
 }
 function azSyncSchedule(key){if(!azSyncReady||!azIsDataKey(key))return;azSyncPending.add(key);if(azSyncTimer)clearTimeout(azSyncTimer);azSyncTimer=setTimeout(azSyncFlush,600)}
 async function azSyncFlush(){
@@ -618,8 +629,7 @@ async function azSyncStart(){
   for(const row of rows){
    if(!azIsDataKey(row.data_key))continue;
    remote.add(row.data_key);
-   const v=row.data_value;
-   const value=v&&typeof v==="object"&&typeof v.value==="string"?v.value:typeof v==="string"?v:null;
+   const value=azCloudValue(row.data_value);
    if(value!==null){const local=localStorage.getItem(row.data_key);if(local===null)localStorage.setItem(row.data_key,value);else if(local!==value){azSyncStatus("Unterschiedliche Daten auf Geräten – nichts überschrieben",true);continue;}}
   }
   azSyncUser=identity.id;azSyncReady=true;azSyncStatus("Cloud verbunden – Einträge noch nicht geräteübergreifend bestätigt");
@@ -641,7 +651,7 @@ async function azReconcileTodos(){
   const rows=await azSyncFetch("?select=data_key,data_value&user_id=eq."+encodeURIComponent(identity.id)+"&data_key=eq."+key);
   const cloud=rows&&rows[0]?rows[0].data_value:null;
   const userTag=String(identity.id).slice(0,8);
-  const cloudText=cloud&&typeof cloud==="object"?cloud.value:cloud;
+  const cloudText=cloud==null?null:azCloudValue(cloud);
   let remote={};if(typeof cloudText==="string"){try{remote=JSON.parse(cloudText)}catch(e){throw Error("Cloud-To-dos haben ein ungültiges Format.")}}
   const local=readExtra(key),merged={};
   for(const source of [remote,local]){
@@ -661,7 +671,7 @@ async function azReconcileTodos(){
   await azSyncFetch("?on_conflict=user_id,data_key",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({user_id:identity.id,data_key:key,data_value:{value}})});
   const verify=await azSyncFetch("?select=data_key,data_value&user_id=eq."+encodeURIComponent(identity.id)+"&data_key=eq."+key);
   const stored=verify?.[0]?.data_value;
-  const storedText=stored&&typeof stored==="object"?stored.value:stored;
+  const storedText=stored==null?null:azCloudValue(stored);
   let confirmed=0;try{const obj=JSON.parse(storedText);confirmed=Object.values(obj).reduce((n,x)=>n+(Array.isArray(x)?x.length:0),0)}catch(e){}
   if(confirmed<count)throw Error("Cloud hat nach dem Speichern nur "+confirmed+" von "+count+" Einträgen zurückgegeben (Konto "+userTag+").");
   localStorage.setItem(key,value);
